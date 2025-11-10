@@ -10,8 +10,8 @@ class GoogleBooksService:
         self._API_KEY = api_key
 
     #inner: filtering (intitle, inauthor...)
-    def search_books(self, inner, startIndex):
-        params = {"q": self.__build_search_query(inner),
+    def search_books(self, q, startIndex):
+        params = {"q": self.__build_search_query(q),
                   "fields": "items(id, volumeInfo(title, authors, imageLinks/thumbnail))",
                   "maxResults": 10,
                   "startIndex": startIndex,
@@ -20,8 +20,8 @@ class GoogleBooksService:
         return self.__send_api_request(self.BASE_API_URL, params, FUNC_SEARCH_BOOK)
 
     #inner:   book_id
-    def get_book_info(self, inner):
-        url = self.BASE_API_URL + '/' + inner
+    def get_book_info(self, book_id):
+        url = self.BASE_API_URL + '/' + book_id
         params = {
             "fields": "id, volumeInfo(title, authors, publishedDate, description, imageLinks/thumbnail, industryIdentifiers)",
             "key": self._API_KEY}
@@ -46,9 +46,9 @@ class GoogleBooksService:
         try:
             data_list = response.json()["items"]
             for book in data_list:
-                book_list.append({"id": book["id"],
-                                  "title": book["volumeInfo"]["title"],
-                                  "authors": book["volumeInfo"]["authors"],
+                book_list.append({"id": book.get("id", "ERROR"),
+                                  "title": book["volumeInfo"].get("title", "ERROR"),
+                                  "authors": book["volumeInfo"].get("authors", "ERROR"),
                                   "image": book["volumeInfo"].get("imageLinks", {}).get("thumbnail", "ERROR")})
             return book_list
 
@@ -60,10 +60,10 @@ class GoogleBooksService:
         book_info = list()
         try:
             book = response.json()
-            book_info.append({"id": book["id"],
-                              "title": book["volumeInfo"]["title"],
-                              "authors": book["volumeInfo"]["authors"],
-                              "publishedDate": book["volumeInfo"]["publishedDate"],
+            book_info.append({"id": book.get("id", "ERROR"),
+                              "title": book["volumeInfo"].get("title", "ERROR"),
+                              "authors": book["volumeInfo"].get("authors", "ERROR"),
+                              "publishedDate": book["volumeInfo"].get("publishedDate", "ERROR"),
                               "description": book["volumeInfo"].get("description", "ERROR"),
                               "image": book["volumeInfo"].get("imageLinks", {}).get("thumbnail", "ERROR"),
                               "industryIdentifiers": book["volumeInfo"].get("industryIdentifiers", "ERROR")})
@@ -73,5 +73,5 @@ class GoogleBooksService:
             return "ERROR: something went wrong while formatting book info result"
 
 
-    def __build_search_query(self, inner_dict):
-        return "&".join(f"{k}:{v}" for k, v in inner_dict.items())# + f"&fields={fields}"
+    def __build_search_query(self, q_dict):
+        return "&".join(f"{k}:{v}" for k, v in q_dict.items())# + f"&fields={fields}"
