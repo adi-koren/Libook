@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="350px"
+    android:gravity="center"
+    android:orientation="horizontal"
+    android:layout_marginHorizontal="20sp"
+    android:layout_marginVertical="10sp">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="70"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/clvTitle"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="70"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:gravity="left"/>
+
+        <TextView
+            android:id="@+id/clvAuthor"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="30"
+            android:textSize="20sp"
+            android:gravity="left"/>
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/clvBookCover"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="30"/>
+
+</LinearLayout>
