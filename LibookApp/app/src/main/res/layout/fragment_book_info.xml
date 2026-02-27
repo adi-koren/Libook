@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".BookInfoFragment"
+    android:layout_marginHorizontal="20dp">
+
+    <!-- TODO: Update blank fragment layout -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Search Fragment"
+        android:textSize="35dp"
+        android:layout_marginTop="25dp"
+        android:textAlignment="center"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="50"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="65"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tVTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Book Title"
+                android:textSize="25dp"/>
+
+            <TextView
+                android:id="@+id/tVAuthor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Author"
+                android:textSize="20dp"/>
+
+            <TextView
+                android:id="@+id/tVPub"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Pub year"
+                android:textSize="17dp"/>
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/iVImage"
+            android:layout_width="0dp"
+            android:layout_height="350px"
+            android:layout_weight="35"/>
+
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="40"
+        android:scrollbars="vertical"> <!-- Optional: adds a vertical scroll bar indicator -->
+
+        <TextView
+            android:id="@+id/tVDesc"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="description"
+            android:textSize="23dp"/>
+
+    </ScrollView>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="10"
+        android:layout_marginTop="20dp"
+        android:layout_marginHorizontal="10dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="70"
+        android:text="Gemini generated age recommendation"
+        android:textSize="20dp"
+        android:layout_marginHorizontal="10dp"/>
+
+
+</LinearLayout>

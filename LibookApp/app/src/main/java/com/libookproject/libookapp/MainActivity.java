@@ -10,7 +10,9 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 public class MainActivity extends AppCompatActivity {
-    FrameLayout frameLayout;
+    private FrameLayout frameLayout;
+    private SearchFragment searchFragment= new SearchFragment();
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -19,8 +21,15 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         init();
-        getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout, new SearchFragment())
-                .addToBackStack(null)
+//        getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout, new SearchFragment())
+//                .addToBackStack(null)
+//                .commit();
+
+        getSupportFragmentManager()
+                .beginTransaction()
+                .add(R.id.frameLayout, searchFragment, "searchFragment")
+                //.add(R.id.frameLayout, fragmentB, "B")
+                //.hide(fragmentB)
                 .commit();
     }
 

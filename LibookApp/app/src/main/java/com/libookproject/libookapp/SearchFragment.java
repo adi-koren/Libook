@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Adapter;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -21,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class SearchFragment extends Fragment {
+public class SearchFragment extends Fragment implements AdapterView.OnItemClickListener{
     private View view;
     private EditText eTSearch;
     private ListView lVBooks;
@@ -52,6 +53,8 @@ public class SearchFragment extends Fragment {
         lVBooks = view.findViewById(R.id.lVBooks);
         btnSearch = view.findViewById(R.id.btnSearch);
 
+        lVBooks.setOnItemClickListener(this);
+
         booksList = new ArrayList<>();
         adp = new CustomAdapterSearch(getContext(), booksList);
         lVBooks.setAdapter(adp);
@@ -59,7 +62,6 @@ public class SearchFragment extends Fragment {
 
     public void searchClicked() {
         String q = eTSearch.getText().toString();
-        Toast.makeText(getContext(), "inside func", Toast.LENGTH_LONG).show();
 
         if (q.length() == 0) {
             eTSearch.setError("Field can't be empty");
@@ -85,5 +87,22 @@ public class SearchFragment extends Fragment {
                 System.out.println(err);
             }
         });
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id)
+    {
+        BookInfoFragment bookInfoFragment = new BookInfoFragment();
+
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("liteBook", booksList.get(position));
+        //bundle.putString("id", view.getTag().toString());
+        bookInfoFragment.setArguments(bundle);
+
+        requireActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.frameLayout, bookInfoFragment)
+                .addToBackStack(null)
+                .commit();
     }
 }

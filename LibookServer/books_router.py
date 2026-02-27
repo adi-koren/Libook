@@ -4,8 +4,8 @@ from typing import Optional, Dict
 
 router = APIRouter()
 
-def get_google_books_service(request: Request):
-    return request.app.state.google_books_service
+def get_books_service(request: Request):
+    return request.app.state.books_service
 
 class SearchRequest(BaseModel):
     q: Optional[str] = None
@@ -21,9 +21,9 @@ class SearchRequest(BaseModel):
         return v
 
 @router.post("/books/search")
-def search_books(body: SearchRequest, gb=Depends(get_google_books_service)):
+def search_books(body: SearchRequest, bs=Depends(get_books_service)):
     try:
-        books = gb.search_books(body.q, body.q_inter, body.startIndex)
+        books = bs.search_books(body.q, body.q_inter, body.startIndex)
     except RuntimeError as e:
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
@@ -40,9 +40,9 @@ def search_books(body: SearchRequest, gb=Depends(get_google_books_service)):
 
 
 @router.get("/books/{book_id}")
-def book_info_endpoint(book_id: str, gb_service = Depends(get_google_books_service)):
+def book_info_endpoint(book_id: str, bs = Depends(get_books_service)):
     try:
-        book_info = gb_service.get_book_info(book_id)
+        book_info = bs.get_book_info(book_id)
     except RuntimeError as e:
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,

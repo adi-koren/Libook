@@ -58,16 +58,15 @@ class GoogleBooksService:
 
 
     def __format_book_info_result(self, response):
-        book_info = list()
         try:
             book = response.json()
-            book_info.append({"id": book.get("id", "ERROR"),
+            book_info = {"id": book.get("id", "ERROR"),
                               "title": book.get("volumeInfo", {}).get("title", "ERROR"),
                               "authors": book.get("volumeInfo", {}).get("authors", "ERROR"),
                               "publishedDate": book.get("volumeInfo", {}).get("publishedDate", "ERROR"),
                               "description": book.get("volumeInfo", {}).get("description", "ERROR"),
                               "image": book.get("volumeInfo", {}).get("imageLinks", {}).get("thumbnail", "ERROR"),
-                              "industryIdentifiers": book.get("volumeInfo", {}).get("industryIdentifiers", "ERROR")})
+                              "industryIdentifiers": book.get("volumeInfo", {}).get("industryIdentifiers", "ERROR")}
             return book_info
 
         except:
