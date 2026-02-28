@@ -63,7 +63,8 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemClickL
     public void searchClicked() {
         String q = eTSearch.getText().toString();
 
-        if (q.length() == 0) {
+        if (q.length() == 0)
+        {
             eTSearch.setError("Field can't be empty");
             return;
         }
