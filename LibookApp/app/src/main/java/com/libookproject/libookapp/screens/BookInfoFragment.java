@@ -1,9 +1,11 @@
 package com.libookproject.libookapp.screens;
 
+import static android.text.TextUtils.replace;
 import static com.libookproject.libookapp.FBRef.refAuth;
 import static com.libookproject.libookapp.FBRef.refUsers;
 import static com.libookproject.libookapp.serverApi.BooksApiService.getBookInfo;
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -15,6 +17,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -26,6 +29,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.libookproject.libookapp.Book;
+import com.libookproject.libookapp.GeminiCallback;
+import com.libookproject.libookapp.GeminiManager;
 import com.libookproject.libookapp.R;
 import com.libookproject.libookapp.serverApi.ApiCallback;
 
@@ -47,6 +52,8 @@ public class BookInfoFragment extends Fragment implements AdapterView.OnItemSele
     private TextView tVSubj;
     private TextView tVDesc;
     private ImageView iVImage;
+    private TextView tVGeminiReco;
+    private Button btnGenerate;
     private Spinner sSave;
     private DatabaseReference refCurrUserShelves;
     private Book bookInfo;
@@ -84,9 +91,12 @@ public class BookInfoFragment extends Fragment implements AdapterView.OnItemSele
         tVSubj = view.findViewById(R.id.tVSubj);
         tVDesc = view.findViewById(R.id.tVDesc);
         iVImage = view.findViewById(R.id.iVImage);
+        tVGeminiReco = view.findViewById(R.id.tVGeminiReco);
+        btnGenerate = view.findViewById(R.id.btnGenerate);
         sSave = view.findViewById(R.id.sSave);
 
         sSave.setOnItemSelectedListener(this);
+        btnGenerate.setOnClickListener(v -> generateGeminiReco());
     }
 
     private void showBookInfo()
@@ -266,5 +276,42 @@ public class BookInfoFragment extends Fragment implements AdapterView.OnItemSele
             // add to new shelf
             addBookToShelf(newSelectedShelf);
         }
+    }
+
+    public void generateGeminiReco()
+    {
+        String promptTemplate = getString(R.string.gemini_prompt);
+
+        String prompt = promptTemplate
+                .replace("{/title/}", bookInfo.getTitle())
+                .replace("{/author/}", bookInfo.getAuthors().get(0))
+                .replace("{/subject/}", bookInfo.getSubjects())
+                .replace("{/description/}", bookInfo.getDescription())
+                .replace("{/cover_url/}", bookInfo.getImage());
+
+        GeminiManager geminiManager = GeminiManager.getInstance();
+
+        ProgressDialog pD = new ProgressDialog(getContext());
+        pD.setTitle("Sent Prompt");
+        pD.setMessage("Waiting for response...");
+        pD.setCancelable(false);
+        pD.show();
+        geminiManager.sendTextPrompt(prompt,
+                new GeminiCallback()
+                {
+                    @Override
+                    public void onSuccess(String result) {
+                        pD.dismiss();
+                        tVGeminiReco.setText(result);
+                        btnGenerate.setEnabled(false);
+                    }
+
+                    @Override
+                    public void onFailure(Throwable error)
+                    {
+                        pD.dismiss();
+                        tVGeminiReco.setText("Failed prompting Gemini:\n" + error.getMessage());
+                    }
+                });
     }
 }

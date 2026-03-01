@@ -54,7 +54,7 @@ class OpenLibraryService:
             if isinstance(description, dict):
                 description = description.get("value", "couldn't find description")
 
-            subject = (work.get("subjects") or ["no subject"])[0]
+            subject = (work.get("subjects") or ["Unknown subjects"])[0]
 
             author_name = None
             authors = work.get("authors", [])
@@ -68,9 +68,9 @@ class OpenLibraryService:
             if covers and len(covers) > 0:
                 cover_url = self.BASE_IMAGE_URL_BEG + str(covers[0]) + self.BASE_IMAGE_URL_END
             else:
-                cover_url = "ERROR"
+                cover_url = "Unknown cover"
 
-            data = {
+            return {
                 "id": work.get("key", "").split("/")[-1],
                 "title": title,
                 "authors": [author_name],
@@ -78,9 +78,6 @@ class OpenLibraryService:
                 "description": description,
                 "subjects": subject
             }
-
-            print(data)
-            return data
 
         except Exception as e:
             return f"ERROR: {e}"
