@@ -3,9 +3,12 @@ package com.libookproject.libookapp.screens;
 import static com.libookproject.libookapp.FBRef.refAuth;
 import static com.libookproject.libookapp.FBRef.refUsers;
 
+import android.app.Dialog;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -13,7 +16,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.TextView;
 
+import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -23,6 +32,7 @@ import com.libookproject.libookapp.R;
 import com.libookproject.libookapp.SavedBook;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 ///**
 // * A simple {@link Fragment} subclass.
@@ -33,9 +43,15 @@ public class LibraryFragment extends Fragment
 {
     private View view;
     private DatabaseReference refCurrUserShelves;
-    private RecyclerView recyclerView;
+    private RecyclerView recyclerViewBooks;
     private CustomAdapterLibrary adpBooks;
     private ArrayList<SavedBook> booksList;
+
+    private DrawerLayout drawerLayout;
+    private NavigationView navView;
+    private ImageView menuIcon;
+    private TextView tvShelfName;
+    private TextView tvBookCount;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -52,17 +68,42 @@ public class LibraryFragment extends Fragment
 
         init();
         loadBooks("favorites");
+        loadShelvesMenu();
+
+        menuIcon.setOnClickListener(v ->
+                drawerLayout.openDrawer(GravityCompat.END)
+        );
+
+        navView.setNavigationItemSelectedListener(item -> {
+            String shelfName = item.getTitle().toString();
+            tvShelfName.setText(shelfName);
+            loadBooks(shelfName);
+            drawerLayout.closeDrawer(navView);
+            return true;
+        });
+
+        View headerView = navView.getHeaderView(0);
+        ImageButton btnAddShelf = headerView.findViewById(R.id.btnAddShelf);
+
+        btnAddShelf.setOnClickListener(v -> showAddShelfDialog());
+
         return view;
     }
 
     private void init()
     {
-        recyclerView = view.findViewById(R.id.recyclerViewBooks);
-        // 3 columns grid
-        GridLayoutManager layoutManager = new GridLayoutManager(getContext(), 3);
-        layoutManager.setReverseLayout(true);      // newest on top
+        drawerLayout = view.findViewById(R.id.drawerLayout);
+        navView = view.findViewById(R.id.navView);
+        menuIcon = view.findViewById(R.id.menuIcon);
 
-        recyclerView.setLayoutManager(layoutManager);
+        tvShelfName = view.findViewById(R.id.tvShelfName);
+        tvBookCount = view.findViewById(R.id.tvBookCount);
+
+        recyclerViewBooks = view.findViewById(R.id.recyclerViewBooks);
+        GridLayoutManager layoutManager = new GridLayoutManager(getContext(), 3);
+        layoutManager.setReverseLayout(false);      // newest on top
+
+        recyclerViewBooks.setLayoutManager(layoutManager);
 
         booksList = new ArrayList<>();
         adpBooks = new CustomAdapterLibrary(getContext(), booksList, book -> {
@@ -78,7 +119,7 @@ public class LibraryFragment extends Fragment
                     .addToBackStack(null)
                     .commit();
         });
-        recyclerView.setAdapter(adpBooks);
+        recyclerViewBooks.setAdapter(adpBooks);
     }
 
     private void loadBooks(String shelfName)
@@ -88,14 +129,18 @@ public class LibraryFragment extends Fragment
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 booksList.clear();
-                for (DataSnapshot data: snapshot.getChildren())
-                {
+                for (DataSnapshot data: snapshot.getChildren()) {
                     if (data.getValue() instanceof String)
                     {
-                        booksList.add(0, new SavedBook((String) data.getValue(), data.getKey()));
+                        booksList.add(new SavedBook((String)data.getValue(), data.getKey()));
                     }
                 }
+
+                // Reverse list for proper display (first book bottom-left -> top-left)
+                Collections.reverse(booksList);
+
                 adpBooks.notifyDataSetChanged();
+                tvBookCount.setText(booksList.size() + " ספרים");
             }
 
             @Override
@@ -103,6 +148,51 @@ public class LibraryFragment extends Fragment
                 System.out.println(error);
             }
         });
+    }
+
+    private void loadShelvesMenu() {
+        navView.getMenu().clear();
+
+        refCurrUserShelves.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot data : snapshot.getChildren())
+                {
+                    navView.getMenu().add(data.getKey());
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {}
+        });
+    }
+
+    private void showAddShelfDialog()
+    {
+        Dialog dialog = new Dialog(requireContext());
+        dialog.setContentView(R.layout.dialog_add_shelf);
+        dialog.setCancelable(true);
+
+        EditText etShelfName = dialog.findViewById(R.id.etShelfName);
+        Button btnCancel = dialog.findViewById(R.id.btnCancel);
+        Button btnConfirm = dialog.findViewById(R.id.btnConfirm);
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+
+        btnConfirm.setOnClickListener(v -> {
+            String shelfName = etShelfName.getText().toString().trim();
+            if (!shelfName.isEmpty()) {
+                refCurrUserShelves.child(shelfName).child("_meta").setValue(true);
+                loadShelvesMenu();
+                dialog.dismiss();
+            }
+            else
+            {
+                etShelfName.setError("Name can not be empty");
+            }
+        });
+
+        dialog.show();
     }
 }
 
