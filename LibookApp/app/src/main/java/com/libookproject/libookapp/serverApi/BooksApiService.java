@@ -1,4 +1,8 @@
-package com.libookproject.libookapp;
+package com.libookproject.libookapp.serverApi;
+
+import com.libookproject.libookapp.Book;
+import com.libookproject.libookapp.LiteBook;
+import com.libookproject.libookapp.SearchRequest;
 
 import java.util.List;
 

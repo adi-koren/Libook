@@ -1,6 +1,7 @@
-package com.libookproject.libookapp;
+package com.libookproject.libookapp.screens;
 
 import static com.libookproject.libookapp.FBRef.refAuth;
+import static com.libookproject.libookapp.FBRef.refUsers;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -29,6 +30,7 @@ import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 import com.google.firebase.auth.FirebaseUser;
+import com.libookproject.libookapp.R;
 
 public class AuthActivity extends AppCompatActivity
 {
@@ -145,12 +147,16 @@ public class AuthActivity extends AppCompatActivity
 
                 if (t.isSuccessful())
                 {
-                    FirebaseUser user = refAuth.getCurrentUser();
+                    if (!isSignInMode)
+                    {
+                        FirebaseUser user = refAuth.getCurrentUser();
+                        if (user != null)
+                        {
 
-                    if (isSignInMode) {
-                        tVMsg.setText("Signed in successfully\nUid: " + user.getUid());
-                    } else {
-                        tVMsg.setText("User created successfully\nUid: " + user.getUid());
+                            refUsers.child(user.getUid()).child("Shelves").child("favorites").child("_meta").setValue(true)
+                                    .addOnSuccessListener(aVoid -> System.out.println("Favorites shelf created"))
+                                    .addOnFailureListener(e -> System.out.println("Failed: " + e.getMessage()));
+                        }
                     }
 
                     Intent intent = new Intent(this, MainActivity.class);

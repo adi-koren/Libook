@@ -1,7 +1,12 @@
-package com.libookproject.libookapp;
+package com.libookproject.libookapp.screens;
 
-import static com.libookproject.libookapp.BooksApiService.searchBooks;
-import com.libookproject.libookapp.ApiCallback;
+import static com.libookproject.libookapp.serverApi.BooksApiService.searchBooks;
+
+import com.libookproject.libookapp.CustomAdapterSearch;
+import com.libookproject.libookapp.LiteBook;
+import com.libookproject.libookapp.R;
+import com.libookproject.libookapp.SearchRequest;
+import com.libookproject.libookapp.serverApi.ApiCallback;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -9,10 +14,7 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Adapter;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
@@ -96,8 +98,8 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemClickL
         BookInfoFragment bookInfoFragment = new BookInfoFragment();
 
         Bundle bundle = new Bundle();
-        bundle.putParcelable("liteBook", booksList.get(position));
-        //bundle.putString("id", view.getTag().toString());
+        //bundle.putParcelable("liteBook", booksList.get(position));
+        bundle.putString("id", view.getTag().toString());
         bookInfoFragment.setArguments(bundle);
 
         requireActivity().getSupportFragmentManager()

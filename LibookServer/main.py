@@ -1,8 +1,13 @@
 import os
 from fastapi import FastAPI
 from dotenv import load_dotenv
+import asyncio
+import httpx
+import aiosqlite
+import time
 from google_books_service import GoogleBooksService
 from open_library_service import OpenLibraryService
+from database_handler import DatabaseHandler
 
 from books_router import router as books_router
 
@@ -10,6 +15,12 @@ load_dotenv()
 API_KEY = os.getenv("API_KEY")
 
 app = FastAPI()
+
+@app.on_event("startup")
+async def startup():
+    app.state.db = DatabaseHandler("cache.db")
+    await app.state.db.init()
+
 #app.state.books_service = GoogleBooksService(api_key=API_KEY)
 app.state.books_service = OpenLibraryService()
 app.include_router(books_router)

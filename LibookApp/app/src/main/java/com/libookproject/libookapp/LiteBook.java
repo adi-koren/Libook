@@ -1,13 +1,13 @@
 package com.libookproject.libookapp;
 
-import android.os.Parcel;
-import android.os.Parcelable;
+//import android.os.Parcel;
+//import android.os.Parcelable;
 
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-public class LiteBook implements Parcelable
+public class LiteBook //implements Parcelable
 {
     @SerializedName("id")
     private String id;
@@ -59,35 +59,35 @@ public class LiteBook implements Parcelable
     }
 
 
-    protected LiteBook(Parcel in) {
-        id = in.readString();
-        title = in.readString();
-        authors = in.createStringArrayList();
-        image = in.readString();
-    }
-
-    public static final Creator<LiteBook> CREATOR = new Creator<LiteBook>() {
-        @Override
-        public LiteBook createFromParcel(Parcel in) {
-            return new LiteBook(in);
-        }
-
-        @Override
-        public LiteBook[] newArray(int size) {
-            return new LiteBook[size];
-        }
-    };
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(id);
-        dest.writeString(title);
-        dest.writeStringList(authors);
-        dest.writeString(image);
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
+//    protected LiteBook(Parcel in) {
+//        id = in.readString();
+//        title = in.readString();
+//        authors = in.createStringArrayList();
+//        image = in.readString();
+//    }
+//
+//    public static final Creator<LiteBook> CREATOR = new Creator<LiteBook>() {
+//        @Override
+//        public LiteBook createFromParcel(Parcel in) {
+//            return new LiteBook(in);
+//        }
+//
+//        @Override
+//        public LiteBook[] newArray(int size) {
+//            return new LiteBook[size];
+//        }
+//    };
+//
+//    @Override
+//    public void writeToParcel(Parcel dest, int flags) {
+//        dest.writeString(id);
+//        dest.writeString(title);
+//        dest.writeStringList(authors);
+//        dest.writeString(image);
+//    }
+//
+//    @Override
+//    public int describeContents() {
+//        return 0;
+//    }
 }

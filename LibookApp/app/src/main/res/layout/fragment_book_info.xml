@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".BookInfoFragment"
+    tools:context=".screens.BookInfoFragment"
     android:layout_marginHorizontal="20dp">
 
     <!-- TODO: Update blank fragment layout -->
@@ -43,18 +43,31 @@
                 android:textSize="20dp"/>
 
             <TextView
-                android:id="@+id/tVPub"
+                android:id="@+id/tVSubj"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Pub year"
+                android:text="Subject"
                 android:textSize="17dp"/>
         </LinearLayout>
 
-        <ImageView
-            android:id="@+id/iVImage"
+        <LinearLayout
             android:layout_width="0dp"
-            android:layout_height="350px"
-            android:layout_weight="35"/>
+            android:layout_height="match_parent"
+            android:layout_weight="35"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/iVImage"
+                android:layout_width="match_parent"
+                android:layout_height="350px" />
+
+            <Spinner
+                android:id="@+id/sSave"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"/>
+
+        </LinearLayout>
+
 
     </LinearLayout>
 

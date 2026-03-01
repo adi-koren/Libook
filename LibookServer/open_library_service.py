@@ -6,7 +6,7 @@ FUNC_BOOK_INFO = 2
 class OpenLibraryService:
     BASE_API_URL = "https://openlibrary.org"
     BASE_IMAGE_URL_BEG = "https://covers.openlibrary.org/b/id/"
-    BASE_IMAGE_URL_END = "-M.jpg"
+    BASE_IMAGE_URL_END = "-L.jpg"
 
     def search_books(self, search_fields, q_inter, start_index):
         params = {"q": (search_fields or "") + self.__build_search_query(q_inter or {}),
@@ -40,25 +40,63 @@ class OpenLibraryService:
                                   "image": image_url})
             return book_list
 
-        except:
-            return "ERROR: something went wrong while formatting search result"
+        except Exception as e:
+            return f"ERROR: {e}"
 
 
     def __format_book_info_result(self, response):
         try:
-            book = response.json()
+            print("//////////////////////////////////////////")
+            work = response.json()
+            title = work.get("title", "Unknown title")
 
-            description = book.get("description", "couldn't find description")
+            description = work.get("description", "couldn't find description")
             if isinstance(description, dict):
                 description = description.get("value", "couldn't find description")
 
-            book_info = {"publishedDate": (book.get("subjects") or ["no subject"])[0],
-                         "description": description}
+            subject = (work.get("subjects") or ["no subject"])[0]
 
-            return book_info
+            author_name = None
+            authors = work.get("authors", [])
+            if authors:
+                key = authors[0].get("author", {}).get("key", None)
+                author_name = self.__get_author_name(key)
+            if not author_name:
+                author_name = "Unknown author"
 
+            covers = work.get("covers")
+            if covers and len(covers) > 0:
+                cover_url = self.BASE_IMAGE_URL_BEG + str(covers[0]) + self.BASE_IMAGE_URL_END
+            else:
+                cover_url = "ERROR"
+
+            data = {
+                "id": work.get("key", "").split("/")[-1],
+                "title": title,
+                "authors": [author_name],
+                "image": cover_url,
+                "description": description,
+                "subjects": subject
+            }
+
+            print(data)
+            return data
+
+        except Exception as e:
+            return f"ERROR: {e}"
+
+
+    def __get_author_name(self, author_key):
+        try:
+            url = f"{self.BASE_API_URL}{author_key}.json"
+            response = requests.get(url, timeout=5)
+            if response.status_code == 200:
+                author_data = response.json()
+                return author_data.get("name", "Unknown author")
         except:
-            return "ERROR: something went wrong while formatting book info result"
+            pass
+        return "Unknown author"
+
 
     def __send_api_request(self, url: str, params, func: int):
         response = requests.get(url, params=params, timeout=5)

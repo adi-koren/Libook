@@ -7,6 +7,9 @@ router = APIRouter()
 def get_books_service(request: Request):
     return request.app.state.books_service
 
+def get_db_handler(request: Request):
+    return request.app.state.db
+
 class SearchRequest(BaseModel):
     q: Optional[str] = None
     q_inter: Optional[Dict[str, str]] = None
@@ -40,7 +43,11 @@ def search_books(body: SearchRequest, bs=Depends(get_books_service)):
 
 
 @router.get("/books/{book_id}")
-def book_info_endpoint(book_id: str, bs = Depends(get_books_service)):
+async def book_info_endpoint(book_id: str, bs=Depends(get_books_service), db=Depends(get_db_handler)):
+    cached = await db.fetch_book(book_id)
+    if cached is not None:
+        return cached
+
     try:
         book_info = bs.get_book_info(book_id)
     except RuntimeError as e:
@@ -54,5 +61,7 @@ def book_info_endpoint(book_id: str, bs = Depends(get_books_service)):
             status_code=status.HTTP_404_NOT_FOUND,
             detail="book not found"
         )
+
+    await db.store_book(book_id, book_info)
 
     return book_info
