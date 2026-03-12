@@ -25,23 +25,23 @@ class OpenLibraryService:
 
     def __format_search_result(self, response):
         book_list = list()
-        try:
-            data_list = response.json().get("docs", [])
-            for book in data_list:
-                cover_id = book.get("cover_i")
-                if cover_id:
-                    image_url = self.BASE_IMAGE_URL_BEG + str(cover_id) + self.BASE_IMAGE_URL_END
-                else:
-                    image_url = "ERROR"
+        data_list = response.json().get("docs", [])
+        if len(data_list) == 0:
+            return []
 
-                book_list.append({"id": book.get("key").split("/")[-1],
-                                  "title": book.get("title", "ERROR"),
-                                  "authors": book.get("author_name", ["Unknown author"]),
-                                  "image": image_url})
-            return book_list
+        for book in data_list:
+            cover_id = book.get("cover_i")
+            if cover_id:
+                image_url = self.BASE_IMAGE_URL_BEG + str(cover_id) + self.BASE_IMAGE_URL_END
+            else:
+                image_url = "Unknown cover"
 
-        except Exception as e:
-            return f"ERROR: {e}"
+            book_list.append({"id": book.get("key").split("/")[-1],
+                              "title": book.get("title", "Unknown title"),
+                              "authors": book.get("author_name", ["Unknown author"]),
+                              "image": image_url})
+        return book_list
+
 
 
     def __format_book_info_result(self, response):
@@ -90,13 +90,19 @@ class OpenLibraryService:
             if response.status_code == 200:
                 author_data = response.json()
                 return author_data.get("name", "Unknown author")
+        except requests.exceptions.RequestException:
+            raise RuntimeError("Cannot reach Open Library (check server internet connection)")
         except:
             pass
         return "Unknown author"
 
 
     def __send_api_request(self, url: str, params, func: int):
-        response = requests.get(url, params=params, timeout=5)
+        try:
+            response = requests.get(url, params=params, timeout=5)
+        except requests.exceptions.RequestException:
+            raise RuntimeError("Cannot reach Open Library (check server internet connection)")
+
 
         if response.status_code != 200:
             raise RuntimeError(f"Open library error: {response.status_code}")
@@ -108,4 +114,4 @@ class OpenLibraryService:
 
 
     def __build_search_query(self, q_dict):
-        return " ".join(f"{k}={v}" for k, v in q_dict.items())# + f"&fields={fields}"
+        return " ".join(f"{k}:{v}" for k, v in q_dict.items())# + f"&fields={fields}"

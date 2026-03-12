@@ -1,7 +1,14 @@
 package com.libookproject.libookapp.screens;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkRequest;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,6 +25,10 @@ public class MainActivity extends AppCompatActivity {
     private Fragment activeFragment;
     BottomNavigationView bottomNav;
 
+    private ConnectivityManager connectivityManager;
+    private ConnectivityManager.NetworkCallback networkCallback;
+    private TextView tVNoInternet;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -27,10 +38,36 @@ public class MainActivity extends AppCompatActivity {
 
         init();
         addNevigationBarListener();
+
+        setupNetworkTracking();
+        if (!isInternetAvailable())
+        {
+            showNoInternetMessage();
+        }
+    }
+
+    @Override
+    protected void onStart()
+    {
+        super.onStart();
+
+        NetworkRequest networkRequest = new NetworkRequest.Builder()
+                .addCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+                .build();
+
+        connectivityManager.registerNetworkCallback(networkRequest, networkCallback);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        connectivityManager.unregisterNetworkCallback(networkCallback);
     }
 
     private void init()
     {
+        tVNoInternet = findViewById(R.id.tVNoInternet);
         frameLayout = findViewById(R.id.frameLayout);
         libraryFragment = new LibraryFragment();
         searchFragment = new SearchFragment();
@@ -83,5 +120,59 @@ public class MainActivity extends AppCompatActivity {
                 .commit();
 
         activeFragment = selectedFragment;
+    }
+
+    private boolean isInternetAvailable()
+    {
+        ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        Network network = cm.getActiveNetwork();
+        if (network == null)
+        {
+            return false;
+        }
+
+        NetworkCapabilities capabilities = cm.getNetworkCapabilities(network);
+
+        return (capabilities != null &&
+                capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET));
+    }
+
+    private void setupNetworkTracking()
+    {
+        connectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        networkCallback = new ConnectivityManager.NetworkCallback()
+        {
+
+            @Override
+            public void onAvailable(Network network) {
+                runOnUiThread(() -> hideNoInternetMessage());
+            }
+
+            @Override
+            public void onLost(Network network) {
+                runOnUiThread(() -> showNoInternetMessage());
+            }
+        };
+    }
+
+    private void showNoInternetMessage() {
+
+        tVNoInternet.setVisibility(View.VISIBLE);
+
+        tVNoInternet.animate()
+                .translationY(0)
+                .setDuration(300)
+                .start();
+    }
+
+    private void hideNoInternetMessage() {
+
+        tVNoInternet.animate()
+                .translationY(-tVNoInternet.getHeight())
+                .setDuration(300)
+                .withEndAction(() -> tVNoInternet.setVisibility(View.GONE))
+                .start();
     }
 }

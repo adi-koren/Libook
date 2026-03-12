@@ -236,7 +236,16 @@ public class BookInfoFragment extends Fragment implements AdapterView.OnItemSele
                 true
         );
 
-        refUsers.updateChildren(updates);
+        refUsers.updateChildren(updates).addOnFailureListener(e -> {
+            if (e instanceof com.google.firebase.FirebaseNetworkException)
+            {
+                Toast.makeText(getContext(), "No internet connection", Toast.LENGTH_SHORT).show();
+            }
+            else
+            {
+                Toast.makeText(getContext(), "Database error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void removeBookFromShelf(String shelfName)
@@ -257,7 +266,16 @@ public class BookInfoFragment extends Fragment implements AdapterView.OnItemSele
                 null
         );
 
-        refUsers.updateChildren(updates);
+        refUsers.updateChildren(updates).addOnFailureListener(e -> {
+            if (e instanceof com.google.firebase.FirebaseNetworkException)
+            {
+                Toast.makeText(getContext(), "No internet connection", Toast.LENGTH_SHORT).show();
+            }
+            else
+            {
+                Toast.makeText(getContext(), "Database error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override

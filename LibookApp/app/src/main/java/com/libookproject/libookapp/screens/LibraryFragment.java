@@ -21,6 +21,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.database.DataSnapshot;
@@ -43,7 +44,9 @@ public class LibraryFragment extends Fragment
 {
     private View view;
     private DatabaseReference refCurrUserShelves;
+    private DatabaseReference refCurrShelf;
     private RecyclerView recyclerViewBooks;
+    private ValueEventListener shelfListener = null;
     private CustomAdapterLibrary adpBooks;
     private ArrayList<SavedBook> booksList;
 
@@ -90,6 +93,17 @@ public class LibraryFragment extends Fragment
         return view;
     }
 
+    @Override
+    public void onDestroyView()
+    {
+        super.onDestroyView();
+
+        if (shelfListener != null && refCurrShelf != null)
+        {
+            refCurrShelf.removeEventListener(shelfListener);
+        }
+    }
+
     private void init()
     {
         drawerLayout = view.findViewById(R.id.drawerLayout);
@@ -124,8 +138,12 @@ public class LibraryFragment extends Fragment
 
     private void loadBooks(String shelfName)
     {
-        DatabaseReference refShelf = refCurrUserShelves.child(shelfName);
-        refShelf.addListenerForSingleValueEvent(new ValueEventListener() {
+        if (shelfListener != null && refCurrShelf != null) {
+            refCurrShelf.removeEventListener(shelfListener);
+        }
+        refCurrShelf = refCurrUserShelves.child(shelfName);
+
+        shelfListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 booksList.clear();
@@ -145,9 +163,13 @@ public class LibraryFragment extends Fragment
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                System.out.println(error);
+                booksList.clear();
+                adpBooks.notifyDataSetChanged();
+                tvBookCount.setText(0 + " ספרים");
+                showFirebaseError(error);
             }
-        });
+        };
+        refCurrShelf.addValueEventListener(shelfListener);
     }
 
     private void loadShelvesMenu() {
@@ -163,8 +185,19 @@ public class LibraryFragment extends Fragment
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {}
+            public void onCancelled(@NonNull DatabaseError error) {
+                showFirebaseError(error);
+            }
         });
+    }
+
+    private void showFirebaseError(DatabaseError error)
+    {
+        if (getContext() != null) {
+            Toast.makeText(getContext(),
+                    "Failed to load books. Check your connection.",
+                    Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void showAddShelfDialog()
@@ -182,7 +215,11 @@ public class LibraryFragment extends Fragment
         btnConfirm.setOnClickListener(v -> {
             String shelfName = etShelfName.getText().toString().trim();
             if (!shelfName.isEmpty()) {
-                refCurrUserShelves.child(shelfName).child("_meta").setValue(true);
+                refCurrUserShelves.child(shelfName).child("_meta").setValue(true).addOnFailureListener(e -> {
+                    Toast.makeText(getContext(),
+                            "Failed to create shelf",
+                            Toast.LENGTH_SHORT).show();
+                });
                 loadShelvesMenu();
                 dialog.dismiss();
             }
