@@ -2,7 +2,7 @@ import aiosqlite
 import json
 import time
 
-class DatabaseHandler:
+class CacheHandler:
     CACHE_TTL_SECONDS = 60 * 60 * 24  # 24 hours
 
     def __init__(self, db_path: str):

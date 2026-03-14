@@ -45,42 +45,37 @@ class OpenLibraryService:
 
 
     def __format_book_info_result(self, response):
-        try:
-            print("//////////////////////////////////////////")
-            work = response.json()
-            title = work.get("title", "Unknown title")
+        work = response.json()
+        title = work.get("title", "Unknown title")
 
-            description = work.get("description", "couldn't find description")
-            if isinstance(description, dict):
-                description = description.get("value", "couldn't find description")
+        description = work.get("description", "couldn't find description")
+        if isinstance(description, dict):
+            description = description.get("value", "couldn't find description")
 
-            subject = (work.get("subjects") or ["Unknown subjects"])[0]
+        subject = (work.get("subjects") or ["Unknown subjects"])[0]
 
-            author_name = None
-            authors = work.get("authors", [])
-            if authors:
-                key = authors[0].get("author", {}).get("key", None)
-                author_name = self.__get_author_name(key)
-            if not author_name:
-                author_name = "Unknown author"
+        author_name = None
+        authors = work.get("authors", [])
+        if authors:
+            key = authors[0].get("author", {}).get("key", None)
+            author_name = self.__get_author_name(key)
+        if not author_name:
+            author_name = "Unknown author"
 
-            covers = work.get("covers")
-            if covers and len(covers) > 0:
-                cover_url = self.BASE_IMAGE_URL_BEG + str(covers[0]) + self.BASE_IMAGE_URL_END
-            else:
-                cover_url = "Unknown cover"
+        covers = work.get("covers")
+        if covers and len(covers) > 0:
+            cover_url = self.BASE_IMAGE_URL_BEG + str(covers[0]) + self.BASE_IMAGE_URL_END
+        else:
+            cover_url = "Unknown cover"
 
-            return {
-                "id": work.get("key", "").split("/")[-1],
-                "title": title,
-                "authors": [author_name],
-                "image": cover_url,
-                "description": description,
-                "subjects": subject
-            }
-
-        except Exception as e:
-            return f"ERROR: {e}"
+        return {
+            "id": work.get("key", "").split("/")[-1],
+            "title": title,
+            "authors": [author_name],
+            "image": cover_url,
+            "description": description,
+            "subjects": subject
+        }
 
 
     def __get_author_name(self, author_key):

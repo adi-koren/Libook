@@ -7,7 +7,8 @@ import aiosqlite
 import time
 from google_books_service import GoogleBooksService
 from open_library_service import OpenLibraryService
-from database_handler import DatabaseHandler
+from cache_db_handler import CacheHandler
+from reviews_db_handler import ReviewsHandler
 
 from books_router import router as books_router
 
@@ -18,8 +19,10 @@ app = FastAPI()
 
 @app.on_event("startup")
 async def startup():
-    app.state.db = DatabaseHandler("cache.db")
-    await app.state.db.init()
+    app.state.cache_db = CacheHandler("cache.db")
+    app.state.reviews_db = ReviewsHandler("reviews.db")
+    await app.state.cache_db.init()
+    await app.state.reviews_db.init()
 
 #app.state.books_service = GoogleBooksService(api_key=API_KEY)
 app.state.books_service = OpenLibraryService()

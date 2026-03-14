@@ -15,5 +15,8 @@ public interface ApiCallback<T>
     default void onSearchResultsLoaded(List<LiteBook> books) {}
     default void onSearchResultsError(String err) {}
 
+    default void onPostReviewSucceeded(String result) {}
+    default void onPostReviewFailed(String err) {}
+
     //default void onCommunityPostsLoaded(List<Post> posts) {}
 }

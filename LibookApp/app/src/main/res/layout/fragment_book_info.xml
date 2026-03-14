@@ -1,110 +1,259 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".screens.BookInfoFragment"
-    android:layout_marginHorizontal="20dp">
-
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Search Fragment"
-        android:textSize="35dp"
-        android:layout_marginTop="25dp"
-        android:textAlignment="center"/>
+    tools:context=".screens.BookInfoFragment">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="vertical"
+        android:padding="20dp">
 
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="65"
-            android:orientation="vertical">
+        <!-- TITLE -->
+        <TextView
+            android:id="@+id/tVTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Book Title"
+            android:textSize="28sp"
+            android:textAlignment="center"/>
 
-            <TextView
-                android:id="@+id/tVTitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Book Title"
-                android:textSize="25dp"/>
+        <TextView
+            android:id="@+id/tVAuthor"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Author"
+            android:textSize="20sp"
+            android:textAlignment="center"/>
 
-            <TextView
-                android:id="@+id/tVAuthor"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Author"
-                android:textSize="20dp"/>
-
-            <TextView
-                android:id="@+id/tVSubj"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Subject"
-                android:textSize="17dp"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="35"
-            android:orientation="vertical">
-
-            <ImageView
-                android:id="@+id/iVImage"
-                android:layout_width="match_parent"
-                android:layout_height="135dp"/>
-
-            <Spinner
-                android:id="@+id/sSave"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"/>
-
-        </LinearLayout>
+        <TextView
+            android:id="@+id/tVSubj"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Subject"
+            android:textAlignment="center"/>
 
 
-    </LinearLayout>
+        <!-- BOOK IMAGE -->
+        <ImageView
+            android:id="@+id/iVImage"
+            android:layout_width="150dp"
+            android:layout_height="200dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="10dp"/>
 
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="50"
-        android:scrollbars="vertical"
-        android:layout_marginTop="15dp"> <!-- Optional: adds a vertical scroll bar indicator -->
+        <Spinner
+            android:id="@+id/sSave"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"/>
 
+
+        <!-- DESCRIPTION -->
         <TextView
             android:id="@+id/tVDesc"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:text="description"
-            android:textSize="23dp"/>
-
-    </ScrollView>
-
-    <Button
-        android:id="@+id/btnGenerate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="25dp"
-        android:text="generate AI age recomendation"
-        android:gravity="left"
-        android:layout_marginLeft="15dp"
-        android:onClick="generateGeminiReco"/>
-
-    <TextView
-        android:id="@+id/tVGeminiReco"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="50"
-        android:textSize="20dp"
-        android:layout_marginHorizontal="10dp"/>
-    <!--        android:text="Gemini generated age recommendation"-->
+            android:textSize="18sp"
+            android:layout_marginTop="15dp"/>
 
 
-</LinearLayout>
+        <!-- AI RECOMMENDATION -->
+        <Button
+            android:id="@+id/btnGenerate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Generate AI Age Recommendation"
+            android:layout_marginTop="20dp"
+            android:onClick="generateGeminiReco"/>
+
+        <TextView
+            android:id="@+id/tVGeminiReco"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:layout_marginTop="10dp"/>
+
+
+        <!-- ====================== -->
+        <!--      RATING SUMMARY    -->
+        <!-- ====================== -->
+
+        <TextView
+            android:id="@+id/tvAvgRating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="⭐ 4.5"
+            android:textSize="26sp"
+            android:layout_marginTop="25dp"/>
+
+        <TextView
+            android:id="@+id/tvReviewCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="23 reviews"
+            android:textSize="16sp"/>
+
+
+        <!-- ====================== -->
+        <!--   RATING DISTRIBUTION  -->
+        <!-- ====================== -->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="10dp">
+
+            <!-- 5 stars -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView android:text="5★"
+                    android:layout_width="40dp"
+                    android:layout_height="wrap_content"/>
+
+                <ProgressBar
+                    android:id="@+id/bar5"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:layout_weight="1"/>
+            </LinearLayout>
+
+            <!-- 4 stars -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView android:text="4★"
+                    android:layout_width="40dp"
+                    android:layout_height="wrap_content"/>
+
+                <ProgressBar
+                    android:id="@+id/bar4"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="0dp"
+                    android:layout_height="10dp"
+                    android:layout_weight="1"/>
+            </LinearLayout>
+
+            <!-- 3 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView android:text="3★"
+                    android:layout_width="40dp"
+                    android:layout_height="wrap_content"/>
+
+                <ProgressBar
+                    android:id="@+id/bar3"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="0dp"
+                    android:layout_height="10dp"
+                    android:layout_weight="1"/>
+            </LinearLayout>
+
+            <!-- 2 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView android:text="2★"
+                    android:layout_width="40dp"
+                    android:layout_height="wrap_content"/>
+
+                <ProgressBar
+                    android:id="@+id/bar2"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="0dp"
+                    android:layout_height="10dp"
+                    android:layout_weight="1"/>
+            </LinearLayout>
+
+            <!-- 1 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView android:text="1★"
+                    android:layout_width="40dp"
+                    android:layout_height="wrap_content"/>
+
+                <ProgressBar
+                    android:id="@+id/bar1"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="0dp"
+                    android:layout_height="10dp"
+                    android:layout_weight="1"/>
+            </LinearLayout>
+
+        </LinearLayout>
+
+
+        <!-- ====================== -->
+        <!--   WRITE / EDIT REVIEW  -->
+        <!-- ====================== -->
+
+        <RatingBar
+            android:id="@+id/ratingBarUser"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:numStars="5"
+            android:stepSize="1"
+            android:layout_marginTop="20dp"/>
+
+        <EditText
+            android:id="@+id/etComment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Write your review..."
+            android:minLines="2"/>
+
+        <Button
+            android:id="@+id/btnSendReview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Post Review"
+            android:onClick="addReviewToBook"/>
+
+
+        <!-- ====================== -->
+        <!--         REVIEWS        -->
+        <!-- ====================== -->
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Reviews"
+            android:textSize="22sp"
+            android:layout_marginTop="25dp"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvReviews"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:listitem="@layout/custom_review_layout"/>
+
+        <Button
+            android:id="@+id/btnSeeAllReviews"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="See All Reviews"
+            android:layout_gravity="center"
+            android:layout_marginTop="10dp"
+            android:onClick="showAllReviews"/>
+
+    </LinearLayout>
+
+</ScrollView>
