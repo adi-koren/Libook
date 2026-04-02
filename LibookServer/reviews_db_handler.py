@@ -100,3 +100,11 @@ class ReviewsHandler:
                 (book_id, user_id, username, comment, rating)
             )
             await db.commit()
+
+    async def delete_review(self, book_id: str, user_id: str):
+        async with aiosqlite.connect(self.db_path) as db:
+            await db.execute(
+                "DELETE FROM reviews WHERE book_id = ? AND user_id = ?",
+                (book_id, user_id)
+            )
+            await db.commit()

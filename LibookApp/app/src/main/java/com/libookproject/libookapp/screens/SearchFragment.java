@@ -18,6 +18,7 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -32,6 +33,11 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemClickL
     private ArrayList<LiteBook> booksList;
     private CustomAdapterSearch adp;
 
+    private View footerView;
+    private TextView tvShowMore;
+    private int startIndex = 0;
+    private boolean SEARCH_CLICKED_MODE = true;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,7 +50,7 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemClickL
         view = inflater.inflate(R.layout.fragment_search, container, false);
 
         init();
-        btnSearch.setOnClickListener(v -> searchClicked());
+        btnSearch.setOnClickListener(v -> searchClicked(SEARCH_CLICKED_MODE));
 
         return view;
     }
@@ -55,6 +61,16 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemClickL
         lVBooks = view.findViewById(R.id.lVBooks);
         btnSearch = view.findViewById(R.id.btnSearch);
 
+        footerView = LayoutInflater.from(getContext())
+                .inflate(R.layout.show_more_footer, lVBooks, false);
+
+        tvShowMore = footerView.findViewById(R.id.tvShowMore);
+        tvShowMore.setOnClickListener(v -> {
+            searchClicked(!SEARCH_CLICKED_MODE);
+        });
+
+        footerView.setVisibility(View.GONE);
+        lVBooks.addFooterView(footerView);
         lVBooks.setOnItemClickListener(this);
 
         booksList = new ArrayList<>();
@@ -62,7 +78,8 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemClickL
         lVBooks.setAdapter(adp);
     }
 
-    public void searchClicked() {
+    public void searchClicked(boolean isSearchClickedMode) {
+
         String q = eTSearch.getText().toString();
 
         if (q.length() == 0)
@@ -71,16 +88,42 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemClickL
             return;
         }
 
-        SearchRequest request = new SearchRequest(q, null, 0);
+        if (isSearchClickedMode)
+        {
+            startIndex = 0;
+            footerView.setVisibility(View.GONE);
+        }
+        else
+        {
+            tvShowMore.setText("Loading...");
+            tvShowMore.setEnabled(false);
+        }
+
+        SearchRequest request = new SearchRequest(q, null, startIndex);
 
         searchBooks(request, new ApiCallback<LiteBook>() {
             @Override
             public void onSearchResultsLoaded(List<LiteBook> books) {
                 if (isAdded())
                 {
-                    booksList.clear();
+                    if (isSearchClickedMode)
+                    {
+                        booksList.clear();
+                    }
                     booksList.addAll(books);
                     adp.notifyDataSetChanged();
+
+                    if (books.size() == 10)
+                    {
+                        footerView.setVisibility(View.VISIBLE);
+                        tvShowMore.setEnabled(true);
+                    }
+                    else
+                    {
+                        footerView.setVisibility(View.GONE);
+                    }
+                    tvShowMore.setText("Show more");
+                    startIndex += books.size();
                 }
             }
 

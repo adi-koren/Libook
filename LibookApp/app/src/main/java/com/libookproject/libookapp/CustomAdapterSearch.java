@@ -46,7 +46,10 @@ public class CustomAdapterSearch extends BaseAdapter
     @Override
     public View getView(int i, View view, ViewGroup parent)
     {
-        view = inflater.inflate(R.layout.custom_lv_books_search_layout, parent, false);
+        if (view == null)
+        {
+            view = inflater.inflate(R.layout.custom_lv_books_search_layout, parent, false);
+        }
         TextView clvTitle = view.findViewById(R.id.clvTitle);
         TextView clvAuthor = view.findViewById(R.id.clvAuthor);
         ImageView clvBookCover = view.findViewById(R.id.clvBookCover);

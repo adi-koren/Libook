@@ -3,12 +3,14 @@ package com.libookproject.libookapp.serverApi;
 import com.libookproject.libookapp.Book;
 import com.libookproject.libookapp.LiteBook;
 import com.libookproject.libookapp.PostReviewRequest;
+import com.libookproject.libookapp.RatingStats;
 import com.libookproject.libookapp.SearchRequest;
 
 import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
@@ -24,6 +26,10 @@ public interface RetrofitBooksAPI
                            @Query("user_id") String userId);
 
     @POST("books/{book_id}/review")
-    Call<String> postReview(@Path("book_id") String bookId,
-                            @Body PostReviewRequest review);
+    Call<RatingStats> postReview(@Path("book_id") String bookId,
+                                 @Body PostReviewRequest review);
+
+    @DELETE("books/{book_id}/review")
+    Call<RatingStats> deleteReview(@Path("book_id") String bookId,
+                                   @Query("user_id") String userId);
 }

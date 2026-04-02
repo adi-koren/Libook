@@ -112,7 +112,8 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
 
                 <TextView android:text="5★"
                     android:layout_width="40dp"
@@ -130,7 +131,8 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
 
                 <TextView android:text="4★"
                     android:layout_width="40dp"
@@ -148,7 +150,8 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
 
                 <TextView android:text="3★"
                     android:layout_width="40dp"
@@ -166,7 +169,8 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
 
                 <TextView android:text="2★"
                     android:layout_width="40dp"
@@ -184,7 +188,8 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
 
                 <TextView android:text="1★"
                     android:layout_width="40dp"
@@ -220,12 +225,29 @@
             android:hint="Write your review..."
             android:minLines="2"/>
 
-        <Button
-            android:id="@+id/btnSendReview"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Post Review"
-            android:onClick="addReviewToBook"/>
+            android:layout_height="wrap_content">
+
+            <Button
+                android:id="@+id/btnSendReview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Post Review"
+                android:onClick="addReviewToBook"
+                android:layout_gravity="center"/>
+
+            <ImageButton
+                android:id="@+id/btnDeleteReview"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_gravity="end|center_vertical"
+                android:src="@drawable/ic_delete"
+                android:visibility="gone"
+                android:background="?attr/selectableItemBackgroundBorderless"/>
+
+        </FrameLayout>
+
 
 
         <!-- ====================== -->

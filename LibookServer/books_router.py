@@ -93,6 +93,7 @@ async def add_review_endpoint(book_id: str, body: ReviewRequest, reviews_db=Depe
     try:
         await reviews_db.add_comment_to_book(book_id, body.user_id,
                                              body.username, body.comment, body.rating)
+        stats = await reviews_db.fetch_rating_stats(book_id)
 
     except Exception as e:
         raise HTTPException(
@@ -100,4 +101,20 @@ async def add_review_endpoint(book_id: str, body: ReviewRequest, reviews_db=Depe
             detail=str(e)
         )
 
-    return "ok"
+    return stats
+
+
+@router.delete("/books/{book_id}/review")
+async def delete_review_endpoint(book_id: str, user_id: str,
+                                 reviews_db=Depends(get_reviews_handler)):
+    try:
+        await reviews_db.delete_review(book_id, user_id)
+        stats = await reviews_db.fetch_rating_stats(book_id)
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
+        )
+
+    return stats

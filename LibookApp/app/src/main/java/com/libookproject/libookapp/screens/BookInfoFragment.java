@@ -3,9 +3,11 @@ package com.libookproject.libookapp.screens;
 import static android.text.TextUtils.replace;
 import static com.libookproject.libookapp.FBRef.refAuth;
 import static com.libookproject.libookapp.FBRef.refUsers;
+import static com.libookproject.libookapp.serverApi.BooksApiService.deleteReview;
 import static com.libookproject.libookapp.serverApi.BooksApiService.getBookInfo;
 import static com.libookproject.libookapp.serverApi.BooksApiService.postReview;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 
@@ -22,6 +24,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RatingBar;
@@ -76,6 +79,7 @@ public class BookInfoFragment extends Fragment implements AdapterView.OnItemSele
     private RatingBar ratingBarUser;
     private EditText etComment;
     private Button btnSendReview;
+    private ImageButton btnDeleteReview;
 
     private Button btnSeeAllReviews;
 
@@ -124,11 +128,19 @@ public class BookInfoFragment extends Fragment implements AdapterView.OnItemSele
         ratingBarUser = view.findViewById(R.id.ratingBarUser);
         etComment = view.findViewById(R.id.etComment);
         btnSendReview = view.findViewById(R.id.btnSendReview);
+        btnDeleteReview = view.findViewById(R.id.btnDeleteReview);
         btnSeeAllReviews = view.findViewById(R.id.btnSeeAllReviews);
 
         btnGenerate.setOnClickListener(v -> generateGeminiReco());
         btnSendReview.setOnClickListener(v -> addReviewToBook());
         btnSeeAllReviews.setOnClickListener(v -> showAllReviews());
+        btnDeleteReview.setOnClickListener(v -> new AlertDialog.Builder(getContext())
+                .setTitle("Delete review")
+                .setMessage("This action cannot be undone.")
+                .setPositiveButton("Delete", (dialog, which) -> deleteReviewFromBook())
+                .setNegativeButton("Cancel", null)
+                .show()
+        );
 
         rvReviews = view.findViewById(R.id.rvReviews);
         rvReviews.setNestedScrollingEnabled(false);
@@ -220,6 +232,7 @@ public class BookInfoFragment extends Fragment implements AdapterView.OnItemSele
             ratingBarUser.setRating(review.getRating());
             etComment.setText(review.getComment());
             btnSendReview.setText("Update Review");
+            btnDeleteReview.setVisibility(View.VISIBLE);
         }
     }
 
@@ -260,13 +273,40 @@ public class BookInfoFragment extends Fragment implements AdapterView.OnItemSele
         String username = refAuth.getCurrentUser().getEmail();
         postReview(bookId, new PostReviewRequest(userId, username, comment, rating), new ApiCallback() {
             @Override
-            public void onPostReviewSucceeded(String result) {
+            public void onPostReviewSucceeded(RatingStats ratingStats) {
                 btnSendReview.setText("Update Review");
                 ratingBarUser.clearFocus();
+                btnDeleteReview.setVisibility(View.VISIBLE);
+
+                showRatingStats(ratingStats);
+                Toast.makeText(getContext(), "Your comment has been posted", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onPostReviewFailed(String err) {
+                Toast.makeText(getContext(), err, Toast.LENGTH_SHORT).show();
+                System.out.println(err);
+            }
+        });
+    }
+
+    private void deleteReviewFromBook()
+    {
+        String userId = refAuth.getUid();
+        deleteReview(bookId, userId, new ApiCallback() {
+            @Override
+            public void onDeleteReviewSucceeded(RatingStats ratingStats) {
+                ratingBarUser.setRating(0);
+                etComment.setText("");
+                btnSendReview.setText("Post Review");
+                btnDeleteReview.setVisibility(View.GONE);
+
+                showRatingStats(ratingStats);
+                Toast.makeText(getContext(), "Your comment has been deleted", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onDeleteReviewFailed(String err) {
                 Toast.makeText(getContext(), err, Toast.LENGTH_SHORT).show();
                 System.out.println(err);
             }

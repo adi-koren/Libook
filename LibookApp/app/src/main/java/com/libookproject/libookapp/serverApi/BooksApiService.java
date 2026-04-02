@@ -3,6 +3,7 @@ package com.libookproject.libookapp.serverApi;
 import com.libookproject.libookapp.Book;
 import com.libookproject.libookapp.LiteBook;
 import com.libookproject.libookapp.PostReviewRequest;
+import com.libookproject.libookapp.RatingStats;
 import com.libookproject.libookapp.SearchRequest;
 
 import java.util.List;
@@ -25,22 +26,7 @@ public class BooksApiService
                 }
                 else
                 {
-                    String message = "HTTP Error " + response.code();
-
-                    try
-                    {
-                        if (response.errorBody() != null)
-                        {
-                            JSONObject obj = new JSONObject(response.errorBody().string());
-                            message = obj.getString("detail");
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        e.printStackTrace();
-                    }
-
-                    callback.onSearchResultsError(message);
+                    callback.onSearchResultsError(getErrorMessage(response));
                 }
             }
 
@@ -63,22 +49,7 @@ public class BooksApiService
                 }
                 else
                 {
-                    String message = "HTTP Error " + response.code();
-
-                    try
-                    {
-                        if (response.errorBody() != null)
-                        {
-                            JSONObject obj = new JSONObject(response.errorBody().string());
-                            message = obj.getString("detail");
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        e.printStackTrace();
-                    }
-
-                    callback.onBookInfoError(message);
+                    callback.onBookInfoError(getErrorMessage(response));
                 }
             }
 
@@ -91,9 +62,9 @@ public class BooksApiService
 
     public static void postReview(String bookId, PostReviewRequest review, ApiCallback callback)
     {
-        RetrofitInstance.getBooksApiInterface().postReview(bookId, review).enqueue(new Callback<String>() {
+        RetrofitInstance.getBooksApiInterface().postReview(bookId, review).enqueue(new Callback<RatingStats>() {
             @Override
-            public void onResponse(Call<String> call, Response<String> response)
+            public void onResponse(Call<RatingStats> call, Response<RatingStats> response)
             {
                 if (response.isSuccessful())
                 {
@@ -101,29 +72,57 @@ public class BooksApiService
                 }
                 else
                 {
-                    String message = "HTTP Error " + response.code();
-
-                    try
-                    {
-                        if (response.errorBody() != null)
-                        {
-                            JSONObject obj = new JSONObject(response.errorBody().string());
-                            message = obj.getString("detail");
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        e.printStackTrace();
-                    }
-
-                    callback.onPostReviewFailed(message);
+                    callback.onPostReviewFailed(getErrorMessage(response));
                 }
             }
 
             @Override
-            public void onFailure(Call<String> call, Throwable t) {
+            public void onFailure(Call<RatingStats> call, Throwable t) {
                 callback.onPostReviewFailed(t.getLocalizedMessage());
             }
         });
+    }
+
+
+    public static void deleteReview(String bookId, String userId, ApiCallback callback)
+    {
+        RetrofitInstance.getBooksApiInterface().deleteReview(bookId, userId).enqueue(new Callback<RatingStats>() {
+            @Override
+            public void onResponse(Call<RatingStats> call, Response<RatingStats> response)
+            {
+                if (response.isSuccessful())
+                {
+                    callback.onDeleteReviewSucceeded(response.body());
+                }
+                else
+                {
+                    callback.onDeleteReviewFailed(getErrorMessage(response));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<RatingStats> call, Throwable t) {
+                callback.onDeleteReviewFailed(t.getLocalizedMessage());
+            }
+        });
+    }
+
+    private static String getErrorMessage(Response response)
+    {
+        String message = "HTTP Error " + response.code();
+
+        try
+        {
+            if (response.errorBody() != null)
+            {
+                JSONObject obj = new JSONObject(response.errorBody().string());
+                message = obj.getString("detail");
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return message;
     }
 }
