@@ -49,10 +49,10 @@ public class CustomAdapterReviews extends RecyclerView.Adapter<CustomAdapterRevi
 
     public static class ReviewViewHolder extends RecyclerView.ViewHolder {
 
-        TextView tvReviewerName;
-        TextView tvReviewComment;
-        TextView tvReviewDate;
-        RatingBar ratingBarReview;
+        private TextView tvReviewerName;
+        private TextView tvReviewComment;
+        private TextView tvReviewDate;
+        private RatingBar ratingBarReview;
 
         public ReviewViewHolder(@NonNull View itemView) {
             super(itemView);

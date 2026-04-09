@@ -57,7 +57,7 @@ public class CustomAdapterLibrary extends RecyclerView.Adapter<CustomAdapterLibr
 
     class BookViewHolder extends RecyclerView.ViewHolder {
 
-        ImageView imageBook;
+        private ImageView imageBook;
 
         public BookViewHolder(@NonNull View itemView) {
             super(itemView);
