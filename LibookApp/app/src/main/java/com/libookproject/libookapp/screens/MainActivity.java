@@ -21,6 +21,7 @@ public class MainActivity extends AppCompatActivity {
     private FrameLayout frameLayout;
     private Fragment libraryFragment;
     private Fragment searchFragment;
+    private Fragment communityFragment;
     //private Fragment profileFragment;
     private Fragment activeFragment;
     BottomNavigationView bottomNav;
@@ -71,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
         frameLayout = findViewById(R.id.frameLayout);
         libraryFragment = new LibraryFragment();
         searchFragment = new SearchFragment();
+        communityFragment = new CommunityFragment();
         activeFragment = searchFragment;
 
         bottomNav = findViewById(R.id.bottomNavigation);
@@ -80,6 +82,8 @@ public class MainActivity extends AppCompatActivity {
                 .beginTransaction()
                 .add(R.id.frameLayout, libraryFragment, "libraryFragment")
                 .hide(libraryFragment)
+                .add(R.id.frameLayout, communityFragment, "communityFragment")
+                .hide(communityFragment)
                 .add(R.id.frameLayout, searchFragment, "searchFragment")
                 .commit();
     }
@@ -95,6 +99,11 @@ public class MainActivity extends AppCompatActivity {
             else if (item.getItemId() == R.id.nav_search)
             {
                 switchFragment(searchFragment);
+                return true;
+            }
+            else if (item.getItemId() == R.id.nav_community)
+            {
+                switchFragment(communityFragment);
                 return true;
             }
 //            else if (item.getItemId() == R.id.nav_profile)

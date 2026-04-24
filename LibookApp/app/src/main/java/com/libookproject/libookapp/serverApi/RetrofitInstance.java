@@ -19,7 +19,7 @@ public class RetrofitInstance
         return retrofit;
     }
 
-    public static RetrofitBooksAPI getBooksApiInterface() {
-        return getRetrofitInstance().create(RetrofitBooksAPI.class);
+    public static RetrofitAPI getApiInterface() {
+        return getRetrofitInstance().create(RetrofitAPI.class);
     }
 }

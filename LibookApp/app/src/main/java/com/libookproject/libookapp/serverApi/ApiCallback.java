@@ -2,13 +2,15 @@ package com.libookproject.libookapp.serverApi;
 
 import com.libookproject.libookapp.Book;
 import com.libookproject.libookapp.LiteBook;
+import com.libookproject.libookapp.LitePost;
+import com.libookproject.libookapp.Post;
 import com.libookproject.libookapp.RatingStats;
 
 import java.util.List;
 
 public interface ApiCallback<T>
 {
-    default void onSuccess(T result) {}
+    //default void onSuccess(T result) {}
 
     default void onBookInfoLoaded(Book book) {}
     default void onBookInfoError(String err) {}
@@ -21,5 +23,16 @@ public interface ApiCallback<T>
 
     default void onDeleteReviewSucceeded(RatingStats ratingStats) {}
     default void onDeleteReviewFailed(String err) {}
-    //default void onCommunityPostsLoaded(List<Post> posts) {}
+
+    default void onSearchPostsLoaded(List<LitePost> posts) {}
+    default void onSearchPostsError(String err) {}
+
+    default void onPostInfoLoaded(Post post) {}
+    default void onPostInfoError(String err) {}
+
+    default void onPublishPostSucceeded(int postId) {}
+    default void onPublishPostFailed(String err) {}
+
+    default void onDeletePostSucceeded() {}
+    default void onDeletePostFailed(String err) {}
 }

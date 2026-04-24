@@ -1,4 +1,4 @@
-package com.libookproject.libookapp;
+package com.libookproject.libookapp.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -9,6 +9,9 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.libookproject.libookapp.R;
+import com.libookproject.libookapp.Review;
 
 import java.util.ArrayList;
 

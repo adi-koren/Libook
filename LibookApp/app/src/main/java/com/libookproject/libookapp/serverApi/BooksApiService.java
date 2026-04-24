@@ -17,7 +17,7 @@ public class BooksApiService
 {
     public static void searchBooks(SearchRequest request, ApiCallback callback)
     {
-        RetrofitInstance.getBooksApiInterface().searchBooks(request).enqueue(new Callback<List<LiteBook>>() {
+        RetrofitInstance.getApiInterface().searchBooks(request).enqueue(new Callback<List<LiteBook>>() {
             @Override
             public void onResponse(Call<List<LiteBook>> call, Response<List<LiteBook>> response) {
                 if (response.isSuccessful())
@@ -39,7 +39,7 @@ public class BooksApiService
 
     public static void getBookInfo(String bookId, String userId, ApiCallback callback)
     {
-        RetrofitInstance.getBooksApiInterface().getBookInfo(bookId, userId).enqueue(new Callback<Book>() {
+        RetrofitInstance.getApiInterface().getBookInfo(bookId, userId).enqueue(new Callback<Book>() {
             @Override
             public void onResponse(Call<Book> call, Response<Book> response)
             {
@@ -56,53 +56,6 @@ public class BooksApiService
             @Override
             public void onFailure(Call<Book> call, Throwable t) {
                 callback.onBookInfoError(t.getLocalizedMessage());
-            }
-        });
-    }
-
-    public static void postReview(String bookId, PostReviewRequest review, ApiCallback callback)
-    {
-        RetrofitInstance.getBooksApiInterface().postReview(bookId, review).enqueue(new Callback<RatingStats>() {
-            @Override
-            public void onResponse(Call<RatingStats> call, Response<RatingStats> response)
-            {
-                if (response.isSuccessful())
-                {
-                    callback.onPostReviewSucceeded(response.body());
-                }
-                else
-                {
-                    callback.onPostReviewFailed(getErrorMessage(response));
-                }
-            }
-
-            @Override
-            public void onFailure(Call<RatingStats> call, Throwable t) {
-                callback.onPostReviewFailed(t.getLocalizedMessage());
-            }
-        });
-    }
-
-
-    public static void deleteReview(String bookId, String userId, ApiCallback callback)
-    {
-        RetrofitInstance.getBooksApiInterface().deleteReview(bookId, userId).enqueue(new Callback<RatingStats>() {
-            @Override
-            public void onResponse(Call<RatingStats> call, Response<RatingStats> response)
-            {
-                if (response.isSuccessful())
-                {
-                    callback.onDeleteReviewSucceeded(response.body());
-                }
-                else
-                {
-                    callback.onDeleteReviewFailed(getErrorMessage(response));
-                }
-            }
-
-            @Override
-            public void onFailure(Call<RatingStats> call, Throwable t) {
-                callback.onDeleteReviewFailed(t.getLocalizedMessage());
             }
         });
     }

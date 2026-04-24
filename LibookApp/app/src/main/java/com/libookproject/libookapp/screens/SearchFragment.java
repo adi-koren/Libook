@@ -1,12 +1,12 @@
 package com.libookproject.libookapp.screens;
 
-import static com.libookproject.libookapp.serverApi.BooksApiService.searchBooks;
-
-import com.libookproject.libookapp.CustomAdapterSearch;
+import com.libookproject.libookapp.adapters.CustomAdapterSearch;
 import com.libookproject.libookapp.LiteBook;
 import com.libookproject.libookapp.R;
 import com.libookproject.libookapp.SearchRequest;
 import com.libookproject.libookapp.serverApi.ApiCallback;
+import com.libookproject.libookapp.serverApi.BooksApiService;
+
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -60,7 +60,7 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemClickL
     private View footerView;
     private TextView tvShowMore;
     private int startIndex = 0;
-    //private boolean SEARCH_CLICKED_MODE = true;
+
     private SearchRequest prevRequest = null;
     private final int NORMAL_SEARCH_MODE = 0;
     private final int VIEW_MORE_SEARCH_MODE = 1;
@@ -159,7 +159,7 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemClickL
             tvShowMore.setEnabled(false);
         }
 
-        searchBooks(request, new ApiCallback<LiteBook>() {
+        BooksApiService.searchBooks(request, new ApiCallback<LiteBook>() {
             @Override
             public void onSearchResultsLoaded(List<LiteBook> books)
             {

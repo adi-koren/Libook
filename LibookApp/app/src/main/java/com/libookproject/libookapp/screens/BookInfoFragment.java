@@ -1,20 +1,14 @@
 package com.libookproject.libookapp.screens;
 
-import static android.text.TextUtils.replace;
 import static com.libookproject.libookapp.FBRef.refAuth;
 import static com.libookproject.libookapp.FBRef.refUsers;
-import static com.libookproject.libookapp.serverApi.BooksApiService.deleteReview;
-import static com.libookproject.libookapp.serverApi.BooksApiService.getBookInfo;
-import static com.libookproject.libookapp.serverApi.BooksApiService.postReview;
 
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.text.Html;
 import android.view.LayoutInflater;
@@ -23,11 +17,7 @@ import android.widget.AdapterView;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.RatingBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,14 +28,12 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.libookproject.libookapp.Book;
-import com.libookproject.libookapp.CustomAdapterReviews;
+import com.libookproject.libookapp.ReviewsViewModel;
 import com.libookproject.libookapp.GeminiCallback;
 import com.libookproject.libookapp.GeminiManager;
-import com.libookproject.libookapp.PostReviewRequest;
 import com.libookproject.libookapp.R;
-import com.libookproject.libookapp.RatingStats;
-import com.libookproject.libookapp.Review;
 import com.libookproject.libookapp.serverApi.ApiCallback;
+import com.libookproject.libookapp.serverApi.BooksApiService;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -60,6 +48,7 @@ public class BookInfoFragment extends Fragment implements AdapterView.OnItemSele
 {
     private View view;
     private String bookId;
+    private ReviewsViewModel reviewsViewModel;
 
     private Book bookInfo;
     private TextView tVTitle;
@@ -76,24 +65,12 @@ public class BookInfoFragment extends Fragment implements AdapterView.OnItemSele
     private String newSelectedShelf;
     private DatabaseReference refCurrUserShelves;
 
-    private RatingBar ratingBarUser;
-    private EditText etComment;
-    private Button btnSendReview;
-    private ImageButton btnDeleteReview;
-
-    private Button btnSeeAllReviews;
-
-    RecyclerView rvReviews;
-    CustomAdapterReviews adpReviews;
-    ArrayList<Review> reviewsList = new ArrayList<>();
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null)
         {
             bookId = getArguments().getString("id");
-            //liteBook = getArguments().getParcelable("liteBook");
         }
     }
 
@@ -104,11 +81,20 @@ public class BookInfoFragment extends Fragment implements AdapterView.OnItemSele
         view = inflater.inflate(R.layout.fragment_book_info, container, false);
 
         init();
+        reviewsViewModel = new ViewModelProvider(requireActivity()).get(ReviewsViewModel.class);
+        setupReviewFragment();
         showBookInfo();
 
         refCurrUserShelves = refUsers.child(refAuth.getUid()).child("Shelves");
         enableSaveOption();
         return view;
+    }
+
+    @Override
+    public void onDestroy()
+    {
+        super.onDestroy();
+        reviewsViewModel.clear();
     }
 
     private void init()
@@ -125,63 +111,40 @@ public class BookInfoFragment extends Fragment implements AdapterView.OnItemSele
         sSave = view.findViewById(R.id.sSave);
         sSave.setOnItemSelectedListener(this);
 
-        ratingBarUser = view.findViewById(R.id.ratingBarUser);
-        etComment = view.findViewById(R.id.etComment);
-        btnSendReview = view.findViewById(R.id.btnSendReview);
-        btnDeleteReview = view.findViewById(R.id.btnDeleteReview);
-        btnSeeAllReviews = view.findViewById(R.id.btnSeeAllReviews);
-
         btnGenerate.setOnClickListener(v -> generateGeminiReco());
-        btnSendReview.setOnClickListener(v -> addReviewToBook());
-        btnSeeAllReviews.setOnClickListener(v -> showAllReviews());
-        btnDeleteReview.setOnClickListener(v -> new AlertDialog.Builder(getContext())
-                .setTitle("Delete review")
-                .setMessage("This action cannot be undone.")
-                .setPositiveButton("Delete", (dialog, which) -> deleteReviewFromBook())
-                .setNegativeButton("Cancel", null)
-                .show()
-        );
+    }
 
-        rvReviews = view.findViewById(R.id.rvReviews);
-        rvReviews.setNestedScrollingEnabled(false);
+    private void setupReviewFragment()
+    {
+        ReviewsFragment reviewsFragment = new ReviewsFragment();
 
-        adpReviews = new CustomAdapterReviews(getContext(), reviewsList);
-        rvReviews.setLayoutManager(new LinearLayoutManager(getContext()));
-        rvReviews.setAdapter(adpReviews);
+        getChildFragmentManager()
+                .beginTransaction()
+                .replace(R.id.reviewsFrameLayout, reviewsFragment)
+                .commit();
     }
 
     private void showBookInfo()
     {
         String userId = refAuth.getUid();
-        getBookInfo(bookId, userId, new ApiCallback<Book>() {
+        BooksApiService.getBookInfo(bookId, userId, new ApiCallback<Book>() {
             @Override
             public void onBookInfoLoaded(Book book)
             {
+                reviewsViewModel.setFields(book.getId(), book.getReviews(),
+                        book.getUser_review(), book.getRating_stats());
+
                 bookInfo = book;
-                tVTitle.setText(book.getTitle());
-                tVAuthor.setText(book.getAuthors().get(0));
-                tVSubj.setText(book.getSubjects());
-                tVDesc.setText(Html.fromHtml(book.getDescription(), Html.FROM_HTML_MODE_LEGACY));
+                bindData();
 
-                String imageUrl = book.getImage();
-                if (!imageUrl.equals("ERROR"))
+                // notify ReviewsFragment
+                ReviewsFragment fragment = (ReviewsFragment)
+                        getChildFragmentManager().findFragmentById(R.id.reviewsFrameLayout);
+
+                if (fragment != null)
                 {
-                    imageUrl = imageUrl.replace("http://", "https://");
-
-                    Glide.with(view)
-                            .load(imageUrl)
-                            .placeholder(R.drawable.image_not_found)
-                            .error(R.drawable.image_not_found)
-                            .into(iVImage);
+                    fragment.bindData();
                 }
-                else
-                {
-                    iVImage.setImageResource(R.drawable.image_not_found);
-                }
-
-                showRatingStats(book.getRating_stats());
-                showUserReview(book.getUser_review());
-                showTopThreeReviews(book.getReviews());
             }
 
             @Override
@@ -193,125 +156,30 @@ public class BookInfoFragment extends Fragment implements AdapterView.OnItemSele
         });
     }
 
-    private void showRatingStats(RatingStats ratingStats)
+    private void bindData()
     {
-        TextView tvAvgRating = view.findViewById(R.id.tvAvgRating);
-        TextView tvReviewCount = view.findViewById(R.id.tvReviewCount);
-        ProgressBar bar5 = view.findViewById(R.id.bar5);
-        ProgressBar bar4 = view.findViewById(R.id.bar4);
-        ProgressBar bar3 = view.findViewById(R.id.bar3);
-        ProgressBar bar2 = view.findViewById(R.id.bar2);
-        ProgressBar bar1 = view.findViewById(R.id.bar1);
+        tVTitle.setText(bookInfo.getTitle());
+        tVAuthor.setText(bookInfo.getAuthors().get(0));
+        tVSubj.setText(bookInfo.getSubjects());
+        tVDesc.setText(Html.fromHtml(bookInfo.getDescription(), Html.FROM_HTML_MODE_LEGACY));
 
-        String avgRating = String.format("%.1f", ratingStats.getAvg_rating());
-        int totalReviews = ratingStats.getTotal_reviews();
-
-        tvAvgRating.setText(avgRating);
-        tvReviewCount.setText(String.valueOf(totalReviews));
-
-        bar5.setProgress(ratingStats.getStars_5());
-        bar5.setMax(totalReviews);
-
-        bar4.setProgress(ratingStats.getStars_4());
-        bar4.setMax(totalReviews);
-
-        bar3.setProgress(ratingStats.getStars_3());
-        bar3.setMax(totalReviews);
-
-        bar2.setProgress(ratingStats.getStars_2());
-        bar2.setMax(totalReviews);
-
-        bar1.setProgress(ratingStats.getStars_1());
-        bar1.setMax(totalReviews);
-    }
-
-    private void showUserReview(Review review)
-    {
-        if (review != null)
+        String imageUrl = bookInfo.getImage();
+        if (!imageUrl.equals("ERROR"))
         {
-            ratingBarUser.setRating(review.getRating());
-            etComment.setText(review.getComment());
-            btnSendReview.setText("Update Review");
-            btnDeleteReview.setVisibility(View.VISIBLE);
+            imageUrl = imageUrl.replace("http://", "https://");
+
+            Glide.with(view)
+                    .load(imageUrl)
+                    .placeholder(R.drawable.image_not_found)
+                    .error(R.drawable.image_not_found)
+                    .into(iVImage);
+        }
+        else
+        {
+            iVImage.setImageResource(R.drawable.image_not_found);
         }
     }
 
-    private void showTopThreeReviews(ArrayList<Review> reviews)
-    {
-        reviewsList.clear();
-        reviewsList.addAll(reviews.subList(0, Math.min(3, reviews.size())));
-        adpReviews.notifyDataSetChanged();
-    }
-
-    public void showAllReviews()
-    {
-        reviewsList.clear();
-        reviewsList.addAll(bookInfo.getReviews());
-        adpReviews.notifyDataSetChanged();
-
-        btnSeeAllReviews.setEnabled(false);
-    }
-
-    private void addReviewToBook()
-    {
-        int rating = (int)ratingBarUser.getRating();
-        if (rating == 0)
-        {
-            ratingBarUser.requestFocus();
-            Toast.makeText(getContext(), "Please rate the book", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        String comment = etComment.getText().toString();
-        if (comment.length() == 0)
-        {
-            etComment.setError("comment can't be empty");
-            return;
-        }
-
-        String userId = refAuth.getUid();
-        String username = refAuth.getCurrentUser().getEmail();
-        postReview(bookId, new PostReviewRequest(userId, username, comment, rating), new ApiCallback() {
-            @Override
-            public void onPostReviewSucceeded(RatingStats ratingStats) {
-                btnSendReview.setText("Update Review");
-                ratingBarUser.clearFocus();
-                btnDeleteReview.setVisibility(View.VISIBLE);
-
-                showRatingStats(ratingStats);
-                Toast.makeText(getContext(), "Your comment has been posted", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onPostReviewFailed(String err) {
-                Toast.makeText(getContext(), err, Toast.LENGTH_SHORT).show();
-                System.out.println(err);
-            }
-        });
-    }
-
-    private void deleteReviewFromBook()
-    {
-        String userId = refAuth.getUid();
-        deleteReview(bookId, userId, new ApiCallback() {
-            @Override
-            public void onDeleteReviewSucceeded(RatingStats ratingStats) {
-                ratingBarUser.setRating(0);
-                etComment.setText("");
-                btnSendReview.setText("Post Review");
-                btnDeleteReview.setVisibility(View.GONE);
-
-                showRatingStats(ratingStats);
-                Toast.makeText(getContext(), "Your comment has been deleted", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onDeleteReviewFailed(String err) {
-                Toast.makeText(getContext(), err, Toast.LENGTH_SHORT).show();
-                System.out.println(err);
-            }
-        });
-    }
 
     private void enableSaveOption()
     {

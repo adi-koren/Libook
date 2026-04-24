@@ -28,13 +28,6 @@ class SearchRequest(BaseModel):
         return v
 
 
-class ReviewRequest(BaseModel):
-    user_id: str
-    username: str
-    comment: str
-    rating: int
-
-
 @router.post("/books/search")
 def search_books_endpoint(body: SearchRequest, bs=Depends(get_books_service)):
     try:
@@ -58,7 +51,7 @@ def search_books_endpoint(body: SearchRequest, bs=Depends(get_books_service)):
 async def book_info_endpoint(book_id: str, user_id: str, bs=Depends(get_books_service),
                              cache_db=Depends(get_cache_handler), reviews_db=Depends(get_reviews_handler)):
     cache_task = asyncio.create_task(cache_db.fetch_book(book_id))
-    reviews_task = asyncio.create_task(reviews_db.fetch_book_reviews(book_id, user_id))
+    reviews_task = asyncio.create_task(reviews_db.fetch_item_reviews(book_id, user_id))
     user_review_task = asyncio.create_task(reviews_db.fetch_user_review(book_id, user_id))
     stats_task = asyncio.create_task(reviews_db.fetch_rating_stats(book_id))
 
@@ -87,34 +80,3 @@ async def book_info_endpoint(book_id: str, user_id: str, bs=Depends(get_books_se
             "user_review": user_review,
             "rating_stats": stats}
 
-
-@router.post("/books/{book_id}/review")
-async def add_review_endpoint(book_id: str, body: ReviewRequest, reviews_db=Depends(get_reviews_handler)):
-    try:
-        await reviews_db.add_comment_to_book(book_id, body.user_id,
-                                             body.username, body.comment, body.rating)
-        stats = await reviews_db.fetch_rating_stats(book_id)
-
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
-        )
-
-    return stats
-
-
-@router.delete("/books/{book_id}/review")
-async def delete_review_endpoint(book_id: str, user_id: str,
-                                 reviews_db=Depends(get_reviews_handler)):
-    try:
-        await reviews_db.delete_review(book_id, user_id)
-        stats = await reviews_db.fetch_rating_stats(book_id)
-
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
-        )
-
-    return stats

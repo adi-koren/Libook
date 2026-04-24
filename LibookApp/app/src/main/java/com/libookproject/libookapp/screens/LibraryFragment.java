@@ -28,7 +28,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
-import com.libookproject.libookapp.CustomAdapterLibrary;
+import com.libookproject.libookapp.adapters.CustomAdapterLibrary;
 import com.libookproject.libookapp.R;
 import com.libookproject.libookapp.SavedBook;
 

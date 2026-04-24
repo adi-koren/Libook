@@ -1,4 +1,4 @@
-package com.libookproject.libookapp;
+package com.libookproject.libookapp.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -10,6 +10,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.libookproject.libookapp.R;
+import com.libookproject.libookapp.SavedBook;
 
 import java.util.ArrayList;
 
