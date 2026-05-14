@@ -19,12 +19,12 @@ import com.libookproject.libookapp.R;
 
 public class MainActivity extends AppCompatActivity {
     private FrameLayout frameLayout;
-    private Fragment libraryFragment;
-    private Fragment searchFragment;
-    private Fragment communityFragment;
-    //private Fragment profileFragment;
+    private LibraryFragment libraryFragment;
+    private SearchFragment searchFragment;
+    private CommunityFragment communityFragment;
+    private ProfileFragment profileFragment;
     private Fragment activeFragment;
-    BottomNavigationView bottomNav;
+    private BottomNavigationView bottomNav;
 
     private ConnectivityManager connectivityManager;
     private ConnectivityManager.NetworkCallback networkCallback;
@@ -38,7 +38,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         init();
-        addNevigationBarListener();
+        addNevigationBarInnerFragmentListener();
+        addNevigationBarPressedListener();
 
         setupNetworkTracking();
         if (!isInternetAvailable())
@@ -73,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
         libraryFragment = new LibraryFragment();
         searchFragment = new SearchFragment();
         communityFragment = new CommunityFragment();
+        profileFragment = new ProfileFragment();
         activeFragment = searchFragment;
 
         bottomNav = findViewById(R.id.bottomNavigation);
@@ -84,11 +86,27 @@ public class MainActivity extends AppCompatActivity {
                 .hide(libraryFragment)
                 .add(R.id.frameLayout, communityFragment, "communityFragment")
                 .hide(communityFragment)
+                .add(R.id.frameLayout, profileFragment, "profileFragment")
+                .hide(profileFragment)
                 .add(R.id.frameLayout, searchFragment, "searchFragment")
                 .commit();
     }
 
-    private void addNevigationBarListener()
+    private void addNevigationBarInnerFragmentListener()
+    {
+        getSupportFragmentManager()
+                .addOnBackStackChangedListener(() -> {
+                    if (getSupportFragmentManager().getBackStackEntryCount() > 0)
+                    {
+                        bottomNav.setVisibility(View.GONE);
+                    }
+                    else
+                    {
+                        bottomNav.setVisibility(View.VISIBLE);
+                    }
+                });
+    }
+    private void addNevigationBarPressedListener()
     {
         bottomNav.setOnItemSelectedListener(item -> {
             if (item.getItemId() == R.id.nav_library)
@@ -106,11 +124,11 @@ public class MainActivity extends AppCompatActivity {
                 switchFragment(communityFragment);
                 return true;
             }
-//            else if (item.getItemId() == R.id.nav_profile)
-//            {
-//                switchFragment(profileFragment);
-//                return true;
-//            }
+            else if (item.getItemId() == R.id.nav_profile)
+            {
+                switchFragment(profileFragment);
+                return true;
+            }
             return false;
         });
     }
@@ -183,5 +201,11 @@ public class MainActivity extends AppCompatActivity {
                 .setDuration(300)
                 .withEndAction(() -> tVNoInternet.setVisibility(View.GONE))
                 .start();
+    }
+
+    public void notifyPostsHaveChanged()
+    {
+        //communityFragment.setNeedsRefresh(true);
+        profileFragment.setNeedsRefresh(true);
     }
 }

@@ -30,6 +30,7 @@ class SearchRequest(BaseModel):
 
 @router.post("/books/search")
 def search_books_endpoint(body: SearchRequest, bs=Depends(get_books_service)):
+    print(body.q_inter)
     try:
         books = bs.search_books(body.q, body.q_inter, body.startIndex)
     except RuntimeError as e:

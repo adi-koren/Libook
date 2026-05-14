@@ -30,6 +30,9 @@ public interface ApiCallback<T>
     default void onPostInfoLoaded(Post post) {}
     default void onPostInfoError(String err) {}
 
+    default void onGetUserPostsSucceeded(List<LitePost> posts) {}
+    default void onGetUserPostsFailed(String err) {}
+
     default void onPublishPostSucceeded(int postId) {}
     default void onPublishPostFailed(String err) {}
 

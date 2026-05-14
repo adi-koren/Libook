@@ -39,6 +39,9 @@ public interface RetrofitAPI
     Call<Post> getPostInfo(@Path("post_id") String postId,
                            @Query("user_id") String userId);
 
+    @GET("/community/user/{user_id}")
+    Call<List<LitePost>> getUserPosts(@Path("user_id") String userId);
+
     @POST("/community/publish")
     Call<Integer> publishPost(@Body PublishPostRequest post);
 

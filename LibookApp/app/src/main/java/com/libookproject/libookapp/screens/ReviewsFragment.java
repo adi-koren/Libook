@@ -1,6 +1,8 @@
 package com.libookproject.libookapp.screens;
 
+import static com.libookproject.libookapp.FBRef.Uid;
 import static com.libookproject.libookapp.FBRef.refAuth;
+import static com.libookproject.libookapp.FBRef.username;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
@@ -188,9 +190,7 @@ public class ReviewsFragment extends Fragment
             return;
         }
 
-        String userId = refAuth.getUid();
-        String username = refAuth.getCurrentUser().getEmail();
-        ReviewsApiService.postReview(itemId, new PostReviewRequest(userId, username, comment, rating), new ApiCallback() {
+        ReviewsApiService.postReview(itemId, new PostReviewRequest(Uid, username, comment, rating), new ApiCallback() {
             @Override
             public void onPostReviewSucceeded(RatingStats ratingStats) {
                 btnSendReview.setText("Update Review");
@@ -211,13 +211,12 @@ public class ReviewsFragment extends Fragment
 
     private void deleteReviewFromBook()
     {
-        String userId = refAuth.getUid();
         if (itemId == null)
         {
             Toast.makeText(getContext(), "An error occured, please try again later", Toast.LENGTH_SHORT).show();
             return;
         }
-        ReviewsApiService.deleteReview(itemId, userId, new ApiCallback() {
+        ReviewsApiService.deleteReview(itemId, Uid, new ApiCallback() {
             @Override
             public void onDeleteReviewSucceeded(RatingStats ratingStats) {
                 ratingBarUser.setRating(0);

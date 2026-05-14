@@ -1,6 +1,8 @@
 package com.libookproject.libookapp.screens;
 
+import static com.libookproject.libookapp.FBRef.Uid;
 import static com.libookproject.libookapp.FBRef.refAuth;
+import static com.libookproject.libookapp.FBRef.username;
 
 import android.os.Bundle;
 
@@ -66,9 +68,7 @@ public class AddPostFragment extends Fragment
             return;
         }
 
-        String userId = refAuth.getUid();
-        String username = refAuth.getCurrentUser().getEmail();
-        PublishPostRequest publishPostRequest = new PublishPostRequest(userId,
+        PublishPostRequest publishPostRequest = new PublishPostRequest(Uid,
                 username, headline, content);
 
         CommunityApiService.publishPost(publishPostRequest, new ApiCallback() {
@@ -78,6 +78,7 @@ public class AddPostFragment extends Fragment
                 eTHeadline.setText("");
                 eTContent.setText("");
                 Toast.makeText(getContext(), "Your post has been published", Toast.LENGTH_SHORT).show();
+                ((MainActivity)requireActivity()).notifyPostsHaveChanged();
             }
 
             @Override

@@ -14,7 +14,7 @@
         android:text="Libook"
         android:textSize="55dp"
         android:gravity="center"
-        android:layout_marginTop="35dp"/>
+        android:layout_marginTop="35dp" />
 
     <TextView
         android:id="@+id/tVMode"
@@ -23,7 +23,7 @@
         android:text="Welcome back"
         android:textSize="35dp"
         android:gravity="center"
-        android:layout_marginTop="1in"/>
+        android:layout_marginTop="90dp"/>
 
     <EditText
         android:id="@+id/eTEmail"
@@ -42,6 +42,16 @@
         android:textSize="30dp"
         android:layout_marginHorizontal="50dp"
         android:layout_marginTop="15dp"/>
+
+    <EditText
+        android:id="@+id/eTUsername"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Username"
+        android:textSize="30dp"
+        android:layout_marginHorizontal="50dp"
+        android:layout_marginTop="15dp"
+        android:visibility="gone"/>
 
     <TextView
         android:id="@+id/tVMsg"

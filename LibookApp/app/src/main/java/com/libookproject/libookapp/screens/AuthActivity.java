@@ -30,6 +30,7 @@ import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 import com.google.firebase.auth.FirebaseUser;
+import com.libookproject.libookapp.FBRef;
 import com.libookproject.libookapp.R;
 
 public class AuthActivity extends AppCompatActivity
@@ -37,10 +38,13 @@ public class AuthActivity extends AppCompatActivity
     private TextView tVMode;
     private EditText eTEmail;
     private EditText eTPass;
+    private EditText eTUsername;
     private Button btn;
     private TextView tVMsg;
     private TextView tvSwitchMode;
     private boolean isSignInMode = true;
+    private boolean isLoading = false;
+    private ProgressDialog pd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -50,7 +54,26 @@ public class AuthActivity extends AppCompatActivity
         setContentView(R.layout.activity_auth);
 
         init();
-        updateSwitchText();
+
+        if (savedInstanceState != null)
+        {
+            loadSavedState(savedInstanceState);
+        }
+        else
+        {
+            applyModeUI();
+        }
+    }
+
+    @Override
+    protected void onDestroy()
+    {
+        if (pd != null && pd.isShowing())
+        {
+            pd.dismiss();
+        }
+
+        super.onDestroy();
     }
 
     private void init()
@@ -58,11 +81,62 @@ public class AuthActivity extends AppCompatActivity
         tVMode = findViewById(R.id.tVMode);
         eTEmail = findViewById(R.id.eTEmail);
         eTPass = findViewById(R.id.eTPass);
+        eTUsername = findViewById(R.id.eTUsername);
         btn = findViewById(R.id.btn);
         tVMsg = findViewById(R.id.tVMsg);
         tvSwitchMode = findViewById(R.id.tvSwitchMode);
     }
 
+    private void loadSavedState(Bundle savedInstanceState)
+    {
+        eTEmail.setText(savedInstanceState.getString("email", ""));
+        eTPass.setText(savedInstanceState.getString("pass", ""));
+        eTUsername.setText(savedInstanceState.getString("username", ""));
+        isSignInMode = savedInstanceState.getBoolean("mode", true);
+        tVMsg.setText(savedInstanceState.getString("msg", ""));
+        isLoading = savedInstanceState.getBoolean("loading", false);
+
+        applyModeUI();
+
+        if (isLoading)
+        {
+            btn.setEnabled(false);
+
+            pd = new ProgressDialog(this);
+            pd.setTitle("Connecting");
+            pd.setMessage("Connecting to database...");
+            pd.setCancelable(false);
+            pd.show();
+        }
+    }
+
+    private void switchMode()
+    {
+        if (isLoading)
+        {
+            return;
+        }
+        isSignInMode = !isSignInMode;
+        applyModeUI();
+    }
+
+    private void applyModeUI()
+    {
+        if (isSignInMode)
+        {
+            tVMode.setText("Login");
+            btn.setText("Sign In");
+            eTUsername.setVisibility(View.GONE);
+        }
+        else
+        {
+            tVMode.setText("Register");
+            btn.setText("Sign Up");
+            eTUsername.setVisibility(View.VISIBLE);
+        }
+
+        updateSwitchText();
+    }
 
     private void updateSwitchText() {
 
@@ -89,7 +163,7 @@ public class AuthActivity extends AppCompatActivity
             public void updateDrawState(@NonNull TextPaint ds) {
                 super.updateDrawState(ds);
                 ds.setColor(Color.BLUE);
-                ds.setUnderlineText(false); // set true if you want underline
+                ds.setUnderlineText(true); // set true if you want underline
             }
         };
 
@@ -104,64 +178,64 @@ public class AuthActivity extends AppCompatActivity
         tvSwitchMode.setHighlightColor(Color.TRANSPARENT);
     }
 
-    private void switchMode()
-    {
-        isSignInMode = !isSignInMode;
-
-        if (isSignInMode) {
-            tVMode.setText("Login");
-            btn.setText("Sign In");
-        } else {
-            tVMode.setText("Register");
-            btn.setText("Sign Up");
-        }
-
-        updateSwitchText();
-    }
-
     public void auth(View view)
     {
         String email = eTEmail.getText().toString();
         String pass = eTPass.getText().toString();
-        if (email.isEmpty() || pass.isEmpty())
+        String username = eTUsername.getText().toString();
+        if (email.isEmpty() || pass.isEmpty() || (!isSignInMode && username.isEmpty()))
         {
             tVMsg.setText("Please fill all fields");
         }
         else
         {
-            ProgressDialog pd = new ProgressDialog(this);
+            tVMsg.setText("");
+
+            pd = new ProgressDialog(this);
             pd.setTitle("Connecting");
             pd.setMessage("Connecting to database...");
+            pd.setCancelable(false);
             pd.show();
+
+            isLoading = true;
+            btn.setEnabled(false);
 
             Task<AuthResult> task;
 
-            if (isSignInMode) {
+            if (isSignInMode)
+            {
                 task = refAuth.signInWithEmailAndPassword(email, pass);
-            } else {
+            }
+            else
+            {
                 task = refAuth.createUserWithEmailAndPassword(email, pass);
             }
 
             task.addOnCompleteListener(this, t -> {
-                pd.dismiss();
+                isLoading = false;
+                btn.setEnabled(true);
+
+                if (pd != null && pd.isShowing())
+                {
+                    pd.dismiss();
+                }
 
                 if (t.isSuccessful())
                 {
-                    if (!isSignInMode)
+                    FirebaseUser user = refAuth.getCurrentUser();
+                    if (user != null)
                     {
-                        FirebaseUser user = refAuth.getCurrentUser();
-                        if (user != null)
-                        {
+                        FBRef.Uid = user.getUid();
 
-                            refUsers.child(user.getUid()).child("Shelves").child("favorites").child("_meta").setValue(true)
-                                    .addOnSuccessListener(aVoid -> System.out.println("Favorites shelf created"))
-                                    .addOnFailureListener(e -> System.out.println("Failed: " + e.getMessage()));
+                        if (!isSignInMode)
+                        {
+                            finishSignUpSetup(user.getUid(), username);
+                        }
+                        else
+                        {
+                            finishSignInSetup(user.getUid());
                         }
                     }
-
-                    Intent intent = new Intent(this, MainActivity.class);
-//                    intent.putExtra("userID", user.getUid());
-                    startActivity(intent);
                 }
                 else
                 {
@@ -186,5 +260,59 @@ public class AuthActivity extends AppCompatActivity
         } else {
             tVMsg.setText("An error occurred. Please try again later.");
         }
+    }
+
+    private void finishSignUpSetup(String userId, String username)
+    {
+        FBRef.username = username;
+
+        refUsers.child(userId).child("username").setValue(username);
+        refUsers.child(userId).child("Shelves").child("favorites").child("_meta").setValue(true)
+                .addOnSuccessListener(aVoid -> System.out.println("Favorites shelf created"))
+                .addOnFailureListener(e -> System.out.println("Failed: " + e.getMessage()));
+        openMain();
+    }
+
+    private void finishSignInSetup(String userId)
+    {
+        refUsers.child(userId).child("username")
+                .get()
+                .addOnSuccessListener(snapshot ->
+                {
+                    if (snapshot.exists())
+                    {
+                        FBRef.username = snapshot.getValue(String.class);
+                    }
+                    else
+                    {
+                        FBRef.username = "User";
+                    }
+                    openMain();
+                })
+                .addOnFailureListener(e ->
+                {
+                    FBRef.username = "User";
+                    openMain();
+                });
+    }
+
+    private void openMain()
+    {
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState)
+    {
+        super.onSaveInstanceState(outState);
+
+        outState.putString("email", eTEmail.getText().toString());
+        outState.putString("pass", eTPass.getText().toString());
+        outState.putString("username", eTUsername.getText().toString());
+        outState.putBoolean("mode", isSignInMode);
+        outState.putString("msg", tVMsg.getText().toString());
+        outState.putBoolean("loading", isLoading);
     }
 }

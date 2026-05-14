@@ -60,6 +60,26 @@ public class CommunityApiService
         });
     }
 
+    public static void getUserPosts(String userId, ApiCallback callback) {
+        RetrofitInstance.getApiInterface().getUserPosts(userId).enqueue(new Callback<List<LitePost>>() {
+            @Override
+            public void onResponse(Call<List<LitePost>> call, Response<List<LitePost>> response) {
+                if (response.isSuccessful())
+                {
+                    callback.onGetUserPostsSucceeded(response.body());
+                }
+                else
+                {
+                    callback.onGetUserPostsFailed(getErrorMessage(response));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<LitePost>> call, Throwable t) {
+                callback.onGetUserPostsFailed(t.getLocalizedMessage());
+            }
+        });
+    }
 
     public static void publishPost(PublishPostRequest post, ApiCallback callback)
     {

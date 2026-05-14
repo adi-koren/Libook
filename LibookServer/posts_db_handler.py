@@ -114,6 +114,27 @@ class PostsHandler:
                     "created_at": created_at}
 
 
+    async def fetch_user_posts(self, user_id: str):
+        async with aiosqlite.connect(self.db_path) as db:
+            cursor = await db.execute("""
+                SELECT post_id, username, headline, created_at
+                FROM posts 
+                WHERE user_id = ?  
+                ORDER BY created_at DESC;""", (user_id,))
+
+            posts = []
+            async for row in cursor:
+                post_id, username, headline, created_at = row
+                posts.append({
+                    "post_id": str(post_id),
+                    "username": username,
+                    "headline": headline,
+                    "created_at": created_at
+                })
+
+            await cursor.close()
+            return posts
+
     async def publish_post(self, user_id: str, username: str,
                            headline: str, content: str):
         async with aiosqlite.connect(self.db_path) as db:

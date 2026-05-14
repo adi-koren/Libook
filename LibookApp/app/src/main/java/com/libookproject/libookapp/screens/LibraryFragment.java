@@ -1,5 +1,6 @@
 package com.libookproject.libookapp.screens;
 
+import static com.libookproject.libookapp.FBRef.Uid;
 import static com.libookproject.libookapp.FBRef.refAuth;
 import static com.libookproject.libookapp.FBRef.refUsers;
 
@@ -67,7 +68,7 @@ public class LibraryFragment extends Fragment
     {
         // Inflate the layout for this fragment
         view =  inflater.inflate(R.layout.fragment_library, container, false);
-        refCurrUserShelves = refUsers.child(refAuth.getUid()).child("Shelves");
+        refCurrUserShelves = refUsers.child(Uid).child("Shelves");
 
         init();
         loadBooks("favorites");

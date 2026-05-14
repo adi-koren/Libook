@@ -3,7 +3,7 @@ import json
 import time
 
 class CacheHandler:
-    CACHE_TTL_SECONDS = 60 * 60 * 24  # 24 hours
+    CACHE_TTL_SECONDS = 60 * 60 * 24 * 7 * 10  # 24 hours
 
     def __init__(self, db_path: str):
         self.db_path = db_path

@@ -1,5 +1,6 @@
 package com.libookproject.libookapp.screens;
 
+import static com.libookproject.libookapp.FBRef.Uid;
 import static com.libookproject.libookapp.FBRef.refAuth;
 
 import android.os.Bundle;
@@ -81,8 +82,7 @@ public class PostInfoFragment extends Fragment
 
     private void showPostInfo()
     {
-        String userId = refAuth.getUid();
-        CommunityApiService.getPostInfo(postId, userId, new ApiCallback<Post>()
+        CommunityApiService.getPostInfo(postId, Uid, new ApiCallback<Post>()
         {
             @Override
             public void onPostInfoLoaded(Post post)

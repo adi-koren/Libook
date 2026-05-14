@@ -6,6 +6,9 @@ import com.google.firebase.database.FirebaseDatabase;
 
 public class FBRef
 {
+    public static String Uid = null;
+    public static String username = null;
+
     public static FirebaseAuth refAuth = FirebaseAuth.getInstance();
     public static FirebaseDatabase FBDB = FirebaseDatabase.getInstance();
 

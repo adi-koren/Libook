@@ -89,6 +89,7 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemClickL
 
         layoutFilterHeader.setOnClickListener(v -> toggleFilters());
         btnAdvancedSearch.setOnClickListener(v -> {
+            toggleFilters();
             SearchRequest request = buildSearchRequest(ADVANCED_SEARCH_MODE);
             if (request != null)
             {
@@ -96,6 +97,7 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemClickL
             }
         });
         btnSearchISBN.setOnClickListener(v -> {
+            toggleFilters();
             SearchRequest request = buildSearchRequest(ISBN_SEARCH_MODE);
             if (request != null)
             {
@@ -220,9 +222,11 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemClickL
         {
             scrollFilters.setVisibility(View.GONE);
             iVArrow.setRotation(0);
+            lVBooks.setVisibility(View.VISIBLE);
         }
         else
         {
+            lVBooks.setVisibility(View.GONE);
             scrollFilters.setVisibility(View.VISIBLE);
             iVArrow.setRotation(180);
         }

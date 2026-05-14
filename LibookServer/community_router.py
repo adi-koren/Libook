@@ -53,6 +53,12 @@ async def post_info_endpoint(post_id: str, user_id: str,
             "rating_stats": stats}
 
 
+@router.get("/community/user/{user_id}")
+async def get_user_posts_endpoint(user_id: str, posts_db=Depends(get_posts_handler)):
+    posts = await posts_db.fetch_user_posts(user_id)
+
+    return posts
+
 
 @router.post("/community/publish")
 async def publish_post_endpoint(body: PublishPostRequest, posts_db=Depends(get_posts_handler)):
