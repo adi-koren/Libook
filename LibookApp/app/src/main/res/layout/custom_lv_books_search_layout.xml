@@ -1,41 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="350px"
-    android:gravity="center"
+    android:layout_height="120dp"
     android:orientation="horizontal"
-    android:layout_marginHorizontal="20sp"
-    android:layout_marginVertical="10sp">
+    android:padding="12dp"
+    android:layout_marginHorizontal="12dp"
+    android:layout_marginVertical="8dp"
+    android:background="@drawable/card_bg"
+    android:gravity="center_vertical">
 
+    <!-- BOOK COVER -->
+    <ImageView
+        android:id="@+id/clvBookCover"
+        android:layout_width="80dp"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:background="@color/color_surface"
+        android:contentDescription="Book cover" />
+
+    <!-- SPACING -->
+    <View
+        android:layout_width="12dp"
+        android:layout_height="match_parent"/>
+
+    <!-- TEXT SECTION -->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="70"
-        android:orientation="vertical">
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center_vertical">
 
+        <!-- TITLE -->
         <TextView
             android:id="@+id/clvTitle"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="70"
-            android:textSize="20sp"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
             android:textStyle="bold"
-            android:gravity="left"/>
+            android:textColor="@color/color_text_primary"
+            android:maxLines="2"
+            android:ellipsize="end" />
 
+        <!-- AUTHOR -->
         <TextView
             android:id="@+id/clvAuthor"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="30"
-            android:textSize="20sp"
-            android:gravity="left"/>
-    </LinearLayout>
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:textColor="@color/color_text_secondary"
+            android:layout_marginTop="4dp"
+            android:maxLines="1"
+            android:ellipsize="end" />
 
-    <ImageView
-        android:id="@+id/clvBookCover"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="30"/>
+    </LinearLayout>
 
 </LinearLayout>

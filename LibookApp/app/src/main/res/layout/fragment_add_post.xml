@@ -2,7 +2,8 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true">
+    android:fillViewport="true"
+    android:background="@color/color_background">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -15,16 +16,21 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Add Post"
-            android:textSize="24sp"
+            android:textSize="26sp"
             android:textStyle="bold"
-            android:layout_marginBottom="16dp"/>
+            android:textColor="@color/color_text_primary"
+            android:layout_marginBottom="16dp"
+            android:layout_marginLeft="19dp"/>
 
         <!-- Headline label -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Headline *"
-            android:textStyle="bold"/>
+            android:textStyle="bold"
+            android:padding="5dp"
+            android:textColor="@color/color_text_primary"
+            android:textColorHint="@color/color_text_hint"/>
 
         <!-- Headline input -->
         <EditText
@@ -42,7 +48,7 @@
             android:layout_height="wrap_content"
             android:text="Be specific and imagine you're asking a question to another person."
             android:textSize="12sp"
-            android:textColor="#888888"
+            android:textColor="@color/color_text_secondary"
             android:layout_marginBottom="16dp"/>
 
         <!-- Content label -->
@@ -50,7 +56,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Content *"
-            android:textStyle="bold"/>
+            android:textStyle="bold"
+            android:padding="5dp"
+            android:textColor="@color/color_text_primary"
+            android:textColorHint="@color/color_text_hint"/>
 
         <!-- Content input -->
         <EditText
@@ -69,7 +78,7 @@
             android:layout_height="wrap_content"
             android:text="Include all the information someone would need to answer your question."
             android:textSize="12sp"
-            android:textColor="#888888"
+            android:textColor="@color/color_text_secondary"
             android:layout_marginTop="6dp"
             android:layout_marginBottom="20dp"/>
 

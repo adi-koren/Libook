@@ -4,7 +4,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/drawerLayout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/color_background">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -27,11 +28,25 @@
             android:text="favorites"
             android:textSize="25sp"
             android:textStyle="bold"
+            android:textColor="@color/color_text_primary"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toEndOf="@id/menuIcon"
             app:layout_constraintEnd_toEndOf="parent"
             android:gravity="right"
-            android:layout_marginRight="35dp"/>
+            android:layout_marginRight="35dp"
+            android:layout_marginLeft="10dp"/>
+
+        <ImageButton
+            android:id="@+id/btnDeleteShelf"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:src="@drawable/ic_delete"
+            app:tint="@color/color_text_secondary"
+            android:visibility="gone"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginLeft="10dp"/>
 
         <TextView
             android:id="@+id/tvBookCount"
@@ -39,6 +54,7 @@
             android:layout_height="wrap_content"
             android:text="0 ספרים"
             android:textSize="20sp"
+            android:textColor="@color/color_text_secondary"
             app:layout_constraintTop_toBottomOf="@id/tvShelfName"
             app:layout_constraintStart_toStartOf="@id/tvShelfName"/>
 
@@ -61,6 +77,9 @@
         android:layout_height="match_parent"
         android:layout_gravity="end"
         android:fitsSystemWindows="true"
+        android:background="@color/color_surface"
+        app:itemIconTint="@color/color_text_primary"
+        app:itemTextColor="@color/color_text_primary"
         app:headerLayout="@layout/nav_header"
         app:menu="@menu/nav_menu"/>
 </androidx.drawerlayout.widget.DrawerLayout>

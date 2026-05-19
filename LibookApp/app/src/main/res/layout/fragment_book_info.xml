@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/color_background"
     tools:context=".screens.BookInfoFragment">
 
     <LinearLayout
@@ -11,76 +12,148 @@
         android:orientation="vertical"
         android:padding="20dp">
 
-        <!-- TITLE -->
-        <TextView
-            android:id="@+id/tVTitle"
+        <!-- BOOK SECTION -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Book Title"
-            android:textSize="28sp"
-            android:textAlignment="center"/>
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
 
-        <TextView
-            android:id="@+id/tVAuthor"
+            <!-- TITLE -->
+            <TextView
+                android:id="@+id/tVTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Book Title"
+                android:textSize="30sp"
+                android:textStyle="bold"
+                android:textColor="@color/color_text_primary"
+                android:textAlignment="center"/>
+
+            <TextView
+                android:id="@+id/tVAuthor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Author"
+                android:textSize="20sp"
+                android:textColor="@color/color_text_secondary"
+                android:textAlignment="center"
+                android:layout_marginTop="4dp"/>
+
+            <TextView
+                android:id="@+id/tVSubj"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Subject"
+                android:textSize="15sp"
+                android:textColor="@color/color_text_hint"
+                android:textAlignment="center"
+                android:layout_marginTop="2dp"/>
+
+            <!-- BOOK IMAGE -->
+            <FrameLayout
+                android:layout_width="160dp"
+                android:layout_height="230dp"
+                android:layout_marginTop="18dp"
+                android:background="@color/color_surface">
+
+                <ImageView
+                    android:id="@+id/iVImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="fitCenter"/>
+            </FrameLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="16dp"
+                android:background="#EEEEEE">
+
+                <Spinner
+                    android:id="@+id/sSave"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- DESCRIPTION SECTION -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Author"
-            android:textSize="20sp"
-            android:textAlignment="center"/>
+            android:orientation="vertical"
+            android:layout_marginTop="24dp"
+            android:padding="16dp"
+            android:background="@color/color_surface">
 
-        <TextView
-            android:id="@+id/tVSubj"
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Description"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:textColor="@color/color_text_primary"/>
+
+            <TextView
+                android:id="@+id/tVDesc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="description"
+                android:textSize="17sp"
+                android:lineSpacingExtra="4dp"
+                android:textColor="@color/color_text_secondary"
+                android:layout_marginTop="10dp"/>
+        </LinearLayout>
+
+        <!-- AI SECTION -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Subject"
-            android:textAlignment="center"/>
-
-
-        <!-- BOOK IMAGE -->
-        <ImageView
-            android:id="@+id/iVImage"
-            android:layout_width="150dp"
-            android:layout_height="200dp"
-            android:layout_gravity="center"
-            android:layout_marginTop="10dp"/>
-
-        <Spinner
-            android:id="@+id/sSave"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"/>
-
-
-        <!-- DESCRIPTION -->
-        <TextView
-            android:id="@+id/tVDesc"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="description"
-            android:textSize="18sp"
-            android:layout_marginTop="15dp"/>
-
-
-        <!-- AI RECOMMENDATION -->
-        <Button
-            android:id="@+id/btnGenerate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Generate AI Age Recommendation"
+            android:orientation="vertical"
             android:layout_marginTop="20dp"
-            android:onClick="generateGeminiReco"/>
+            android:padding="16dp"
+            android:background="@color/color_surface">
 
-        <TextView
-            android:id="@+id/tVGeminiReco"
+            <Button
+                android:id="@+id/btnGenerate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Generate AI Age Recommendation"
+                android:onClick="generateGeminiReco"/>
+
+            <TextView
+                android:id="@+id/tVGeminiReco"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="17sp"
+                android:textColor="@color/color_text_secondary"
+                android:layout_marginTop="14dp"
+                android:lineSpacingExtra="4dp"/>
+        </LinearLayout>
+
+        <!-- REVIEWS SECTION -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="18sp"
-            android:layout_marginTop="10dp"/>
+            android:orientation="vertical"
+            android:layout_marginTop="20dp">
 
-        <FrameLayout
-            android:id="@+id/reviewsFrameLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Reviews"
+                android:textStyle="bold"
+                android:textSize="20sp"
+                android:textColor="@color/color_text_primary"
+                android:layout_marginBottom="10dp"/>
+
+            <FrameLayout
+                android:id="@+id/reviewsFrameLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
 
     </LinearLayout>
 

@@ -3,65 +3,100 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
+    android:background="@color/color_background"
+    android:paddingTop="10dp"
     tools:context=".screens.CommunityFragment">
 
-    <!--  SEARCH ENGINE  -->
+    <!-- ====================== -->
+    <!--       SEARCH BAR       -->
+    <!-- ====================== -->
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginHorizontal="20dp"
-        android:layout_marginTop="20dp">
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="10dp"
+        android:gravity="center_vertical">
 
         <EditText
             android:id="@+id/eTSearch"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.75"
-            android:textSize="20sp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
             android:hint="Search in community..."
-            />
+            android:textSize="17sp"
+            android:textColor="@color/color_text_primary"
+            android:textColorHint="@color/color_text_hint"
+            android:background="@drawable/input_bg"
+            android:paddingHorizontal="16dp"
+            android:layout_marginLeft="19dp"/>
 
         <ImageButton
             android:id="@+id/btnSearch"
-            android:layout_width="70dp"
+            android:layout_width="50dp"
             android:layout_height="50dp"
-            android:src="@android:drawable/ic_menu_search"/>
-
+            android:layout_marginStart="10dp"
+            android:src="@android:drawable/ic_menu_search"
+            android:background="@drawable/card_bg"
+            android:backgroundTint="@color/color_surface_elevated"
+            app:tint="@color/color_icon_active"
+            android:padding="12dp"/>
     </LinearLayout>
+
+
+    <!-- ====================== -->
+    <!--         HEADER         -->
+    <!-- ====================== -->
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="25dp"
-        android:orientation="horizontal">
+        android:layout_marginTop="24dp"
+        android:layout_marginHorizontal="20dp">
 
-        <TextView
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Newest Posts"
-            android:textSize="30sp"
-            android:layout_marginLeft="20dp"
-            android:layout_gravity="center_vertical"/>
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Community"
+                android:textSize="30sp"
+                android:textStyle="bold"
+                android:textColor="@color/color_text_primary"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Newest Posts"
+                android:textSize="15sp"
+                android:textColor="@color/color_text_secondary"
+                android:layout_marginTop="2dp"/>
+        </LinearLayout>
 
         <Button
             android:id="@+id/btnAddPost"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Add Post"
-            android:backgroundTint="#42a3c7"
-            android:layout_marginRight="20dp"
             android:layout_gravity="end|center_vertical"/>
     </FrameLayout>
 
 
-    <!-- POSTS RESULT LIST -->
+    <!-- ====================== -->
+    <!--        POSTS LIST      -->
+    <!-- ====================== -->
+
     <ListView
         android:id="@+id/lVPosts"
-        android:layout_margin="20dp"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="3"/>
+        android:layout_weight="1"
+        android:layout_margin="20dp"/>
 
 </LinearLayout>

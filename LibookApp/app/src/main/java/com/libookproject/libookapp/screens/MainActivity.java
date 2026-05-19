@@ -17,7 +17,7 @@ import androidx.fragment.app.Fragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.libookproject.libookapp.R;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends MasterActivity {
     private FrameLayout frameLayout;
     private LibraryFragment libraryFragment;
     private SearchFragment searchFragment;
@@ -34,10 +34,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
+//        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
-        init();
+        init(savedInstanceState);
         addNevigationBarInnerFragmentListener();
         addNevigationBarPressedListener();
 
@@ -67,29 +67,61 @@ public class MainActivity extends AppCompatActivity {
         connectivityManager.unregisterNetworkCallback(networkCallback);
     }
 
-    private void init()
+    private void init(Bundle savedInstanceState)
     {
         tVNoInternet = findViewById(R.id.tVNoInternet);
         frameLayout = findViewById(R.id.frameLayout);
-        libraryFragment = new LibraryFragment();
-        searchFragment = new SearchFragment();
-        communityFragment = new CommunityFragment();
-        profileFragment = new ProfileFragment();
-        activeFragment = searchFragment;
-
         bottomNav = findViewById(R.id.bottomNavigation);
-        bottomNav.setSelectedItemId(R.id.nav_search);
 
-        getSupportFragmentManager()
-                .beginTransaction()
-                .add(R.id.frameLayout, libraryFragment, "libraryFragment")
-                .hide(libraryFragment)
-                .add(R.id.frameLayout, communityFragment, "communityFragment")
-                .hide(communityFragment)
-                .add(R.id.frameLayout, profileFragment, "profileFragment")
-                .hide(profileFragment)
-                .add(R.id.frameLayout, searchFragment, "searchFragment")
-                .commit();
+        //app start first time
+        if (savedInstanceState == null)
+        {
+            libraryFragment = new LibraryFragment();
+            searchFragment = new SearchFragment();
+            communityFragment = new CommunityFragment();
+            profileFragment = new ProfileFragment();
+
+            //default configuration
+            activeFragment = searchFragment;
+            bottomNav.setSelectedItemId(R.id.nav_search);
+
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .add(R.id.frameLayout, libraryFragment, "libraryFragment")
+                    .hide(libraryFragment)
+                    .add(R.id.frameLayout, communityFragment, "communityFragment")
+                    .hide(communityFragment)
+                    .add(R.id.frameLayout, profileFragment, "profileFragment")
+                    .hide(profileFragment)
+                    .add(R.id.frameLayout, searchFragment, "searchFragment")
+                    .commit();
+        }
+        else
+        {
+            //recover existing fragments
+            libraryFragment = (LibraryFragment)getSupportFragmentManager().findFragmentByTag("libraryFragment");
+            searchFragment = (SearchFragment)getSupportFragmentManager().findFragmentByTag("searchFragment");
+            communityFragment = (CommunityFragment)getSupportFragmentManager().findFragmentByTag("communityFragment");
+            profileFragment = (ProfileFragment)getSupportFragmentManager().findFragmentByTag("profileFragment");
+
+            //check which fragment was visible
+            if (libraryFragment != null && !libraryFragment.isHidden())
+            {
+                activeFragment = libraryFragment;
+            }
+            else if (communityFragment != null && !communityFragment.isHidden())
+            {
+                activeFragment = communityFragment;
+            }
+            else if (profileFragment != null && !profileFragment.isHidden())
+            {
+                activeFragment = profileFragment;
+            }
+            else
+            {
+                activeFragment = searchFragment;
+            }
+        }
     }
 
     private void addNevigationBarInnerFragmentListener()

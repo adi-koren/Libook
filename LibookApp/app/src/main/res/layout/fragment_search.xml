@@ -4,95 +4,121 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="@color/color_background"
     tools:context=".screens.SearchFragment">
 
+    <!-- TITLE -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Search Fragment"
-        android:textSize="35dp"
-        android:layout_marginTop="25dp"
-        android:textAlignment="center"/>
+        android:text="Search Books"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="@color/color_text_primary"
+        android:layout_marginTop="20dp"
+        android:gravity="center" />
 
-    <!--  SEARCH ENGINE  -->
+    <!-- SEARCH ENGINE -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="60dp"
         android:orientation="horizontal"
         android:layout_marginHorizontal="20dp"
-        android:layout_marginTop="20dp">
+        android:layout_marginTop="20dp"
+        android:padding="8dp"
+        android:background="@drawable/card_bg"
+        android:gravity="center_vertical">
 
         <EditText
             android:id="@+id/eTSearch"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="0.75"
-            android:textSize="25sp"
+            android:textSize="16sp"
             android:hint="Search all books..."
-            android:background="@android:drawable/edit_text" />
+            android:background="@drawable/input_bg"
+            android:paddingHorizontal="12dp"
+            android:textColor="@color/color_text_primary"
+            android:textColorHint="@color/color_text_hint" />
 
         <ImageButton
             android:id="@+id/btnSearch"
-            android:layout_width="70dp"
-            android:layout_height="wrap_content"
-            android:src="@android:drawable/ic_menu_search"/>
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/card_bg"
+            android:src="@android:drawable/ic_menu_search"
+            android:contentDescription="Search" />
 
     </LinearLayout>
 
-    <!-- FILTER HEADER (click to expand) -->
+    <!-- FILTER HEADER -->
     <LinearLayout
         android:id="@+id/layoutFilterHeader"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="12dp"
+        android:padding="14dp"
         android:layout_marginHorizontal="20dp"
-        android:layout_marginTop="10dp"
-        android:background="#DDDDDD">
+        android:layout_marginTop="12dp"
+        android:background="@drawable/card_bg"
+        android:gravity="center_vertical">
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Filter all books"
-            android:textSize="18sp"/>
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/color_text_primary" />
 
         <ImageView
             android:id="@+id/iVArrow"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:src="@android:drawable/arrow_down_float"/>
+            android:src="@android:drawable/arrow_down_float" />
     </LinearLayout>
 
+    <!-- FILTERS -->
     <ScrollView
         android:id="@+id/scrollFilters"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        android:layout_marginHorizontal="20dp">
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="10dp">
 
-        <!-- 📂 EXPANDABLE FILTERS -->
+        <!-- EXPANDABLE FILTERS -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="16dp"
-            android:layout_marginHorizontal="20dp">
+            android:background="@drawable/card_bg">
 
             <!-- TITLE -->
             <EditText
                 android:id="@+id/eTTitle"
-                android:hint="Title"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="50dp"
+                android:hint="Title"
+                android:background="@drawable/input_bg"
+                android:paddingHorizontal="12dp"
+                android:textColor="@color/color_text_primary"
+                android:textColorHint="@color/color_text_hint" />
 
             <!-- AUTHOR -->
             <EditText
                 android:id="@+id/eTAuthor"
-                android:hint="Author name"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"/>
+                android:layout_height="50dp"
+                android:hint="Author name"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/input_bg"
+                android:paddingHorizontal="12dp"
+                android:textColor="@color/color_text_primary"
+                android:textColorHint="@color/color_text_hint" />
 
             <!-- INCLUDE SUBJECTS -->
             <LinearLayout
@@ -102,10 +128,12 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:text="Include subjects"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"/>
+                    android:text="Include subjects"
+                    android:textStyle="bold"
+                    android:textColor="@color/color_text_primary"
+                    android:layout_marginTop="14dp" />
 
                 <!-- INCLUDE SUBJECT MODE -->
                 <RadioGroup
@@ -113,7 +141,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_marginTop="10dp">
+                    android:layout_marginTop="8dp">
 
                     <RadioButton
                         android:id="@+id/radioSubjAll"
@@ -121,14 +149,16 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="Include all"
-                        android:checked="true"/>
+                        android:textColor="@color/color_text_primary"
+                        android:checked="true" />
 
                     <RadioButton
                         android:id="@+id/radioSubjAny"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Include any"/>
+                        android:text="Include any"
+                        android:textColor="@color/color_text_primary"/>
                 </RadioGroup>
 
                 <!-- SUBJECTS -->
@@ -137,31 +167,34 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Fantasy"
-                    android:tag="fantasy"/>
+                    android:textColor="@color/color_text_primary"
+                    android:tag="fantasy" />
 
                 <CheckBox
                     android:id="@+id/cbRomance"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Romance"
-                    android:tag="romance"/>
+                    android:textColor="@color/color_text_primary"
+                    android:tag="romance" />
 
                 <CheckBox
                     android:id="@+id/cbScience"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Science"
-                    android:tag="science"/>
+                    android:textColor="@color/color_text_primary"
+                    android:tag="science" />
 
                 <CheckBox
                     android:id="@+id/cbHistory"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="History"
-                    android:tag="history"/>
+                    android:textColor="@color/color_text_primary"
+                    android:tag="history" />
 
             </LinearLayout>
-
 
             <!-- EXCLUDE SUBJECTS -->
             <LinearLayout
@@ -171,10 +204,12 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:text="Exclude subjects"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"/>
+                    android:text="Exclude subjects"
+                    android:textStyle="bold"
+                    android:textColor="@color/color_text_primary"
+                    android:layout_marginTop="14dp" />
 
                 <!-- SUBJECTS -->
                 <CheckBox
@@ -182,16 +217,17 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Fantasy"
-                    android:tag="fantasy"/>
+                    android:textColor="@color/color_text_primary"
+                    android:tag="fantasy" />
 
                 <CheckBox
                     android:id="@+id/cbExRomance"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Romance"
-                    android:tag="romance"/>
+                    android:textColor="@color/color_text_primary"
+                    android:tag="romance" />
             </LinearLayout>
-
 
             <!-- LANGUAGE -->
             <LinearLayout
@@ -204,7 +240,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Languages"
-                    android:layout_marginTop="10dp"/>
+                    android:textStyle="bold"
+                    android:textColor="@color/color_text_primary"
+                    android:layout_marginTop="14dp" />
 
                 <!-- LANGUAGE MODE -->
                 <RadioGroup
@@ -216,72 +254,87 @@
                     <RadioButton
                         android:id="@+id/radioLangAll"
                         android:layout_width="0dp"
-                        android:layout_weight="1"
                         android:layout_height="wrap_content"
+                        android:layout_weight="1"
                         android:text="All"
-                        android:checked="true"/>
+                        android:textColor="@color/color_text_primary"
+                        android:checked="true" />
 
                     <RadioButton
                         android:id="@+id/radioLangAny"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Any"/>
+                        android:text="Any"
+                        android:textColor="@color/color_text_primary"/>
                 </RadioGroup>
 
-                <!-- LANGUAGES-->
+                <!-- LANGUAGES -->
                 <CheckBox
                     android:id="@+id/cbEnglish"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="English"
-                    android:tag="eng"/>
+                    android:textColor="@color/color_text_primary"
+                    android:tag="eng" />
 
                 <CheckBox
                     android:id="@+id/cbHebrew"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Hebrew"
-                    android:tag="heb"/>
+                    android:textColor="@color/color_text_primary"
+                    android:tag="heb" />
             </LinearLayout>
 
             <!-- ADVANCED SEARCH BUTTON -->
             <Button
                 android:id="@+id/btnAdvancedSearch"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="50dp"
                 android:text="Search"
-                android:layout_marginTop="12dp"/>
+                android:textAllCaps="false"
+                android:layout_marginTop="14dp"
+                android:backgroundTint="@color/color_accent"
+                android:textColor="@android:color/white" />
 
             <!-- DIVIDER -->
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#CCCCCC"
-                android:layout_marginVertical="15dp"/>
+                android:background="@color/color_border"
+                android:layout_marginVertical="15dp" />
 
             <!-- ISBN LABEL -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Search by ISBN"
-                android:textStyle="bold"/>
+                android:textStyle="bold"
+                android:textColor="@color/color_text_primary" />
 
             <!-- ISBN INPUT -->
             <EditText
                 android:id="@+id/eTISBN"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="50dp"
                 android:hint="Enter ISBN"
-                android:layout_marginTop="5dp"/>
+                android:layout_marginTop="5dp"
+                android:background="@drawable/input_bg"
+                android:paddingHorizontal="12dp"
+                android:textColor="@color/color_text_primary"
+                android:textColorHint="@color/color_text_hint" />
 
             <!-- ISBN BUTTON -->
             <Button
                 android:id="@+id/btnSearchISBN"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="50dp"
                 android:text="Search by ISBN"
-                android:layout_marginTop="10dp"/>
+                android:textAllCaps="false"
+                android:layout_marginTop="10dp"
+                android:backgroundTint="@color/color_accent"
+                android:textColor="@android:color/white" />
 
         </LinearLayout>
     </ScrollView>
@@ -289,17 +342,9 @@
     <!-- BOOKS RESULT LIST -->
     <ListView
         android:id="@+id/lVBooks"
-        android:layout_margin="20dp"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"/>
+        android:layout_weight="1"
+        android:layout_margin="20dp" />
+
 </LinearLayout>
-
-<!--    -->
-<!--    </LinearLayout>-->
-
-<!--&lt;!&ndash;    <Button&ndash;&gt;-->
-<!--&lt;!&ndash;        android:layout_width="match_parent"&ndash;&gt;-->
-<!--&lt;!&ndash;        android:layout_height="wrap_content"&ndash;&gt;-->
-<!--&lt;!&ndash;        android:text="hiiii"&ndash;&gt;-->
-<!--&lt;!&ndash;        android:textSize="80dp"/>&ndash;&gt;-->

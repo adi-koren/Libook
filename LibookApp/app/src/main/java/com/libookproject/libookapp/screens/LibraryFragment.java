@@ -4,6 +4,7 @@ import static com.libookproject.libookapp.FBRef.Uid;
 import static com.libookproject.libookapp.FBRef.refAuth;
 import static com.libookproject.libookapp.FBRef.refUsers;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
 
@@ -35,6 +36,8 @@ import com.libookproject.libookapp.SavedBook;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 ///**
 // * A simple {@link Fragment} subclass.
@@ -56,6 +59,7 @@ public class LibraryFragment extends Fragment
     private ImageView menuIcon;
     private TextView tvShelfName;
     private TextView tvBookCount;
+    private ImageButton btnDeleteShelf;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -79,9 +83,7 @@ public class LibraryFragment extends Fragment
         );
 
         navView.setNavigationItemSelectedListener(item -> {
-            String shelfName = item.getTitle().toString();
-            tvShelfName.setText(shelfName);
-            loadBooks(shelfName);
+            showShelf(item.getTitle().toString());
             drawerLayout.closeDrawer(navView);
             return true;
         });
@@ -90,7 +92,12 @@ public class LibraryFragment extends Fragment
         ImageButton btnAddShelf = headerView.findViewById(R.id.btnAddShelf);
 
         btnAddShelf.setOnClickListener(v -> showAddShelfDialog());
-
+        btnDeleteShelf.setOnClickListener(v -> {new AlertDialog.Builder(getContext())
+                .setTitle("Delete Shelf")
+                .setMessage("This action cannot be undone.")
+                .setPositiveButton("Delete", (dialog, which) -> deleteShelf(tvShelfName.getText().toString()))
+                .setNegativeButton("Cancel", null)
+                .show();});
         return view;
     }
 
@@ -110,6 +117,7 @@ public class LibraryFragment extends Fragment
         drawerLayout = view.findViewById(R.id.drawerLayout);
         navView = view.findViewById(R.id.navView);
         menuIcon = view.findViewById(R.id.menuIcon);
+        btnDeleteShelf = view.findViewById(R.id.btnDeleteShelf);
 
         tvShelfName = view.findViewById(R.id.tvShelfName);
         tvBookCount = view.findViewById(R.id.tvBookCount);
@@ -135,6 +143,20 @@ public class LibraryFragment extends Fragment
                     .commit();
         });
         recyclerViewBooks.setAdapter(adpBooks);
+    }
+
+    private void showShelf(String shelfName)
+    {
+        tvShelfName.setText(shelfName);
+        loadBooks(shelfName);
+        if (!shelfName.equals("favorites"))
+        {
+            btnDeleteShelf.setVisibility(View.VISIBLE);
+        }
+        else
+        {
+            btnDeleteShelf.setVisibility(View.GONE);
+        }
     }
 
     private void loadBooks(String shelfName)
@@ -174,11 +196,10 @@ public class LibraryFragment extends Fragment
     }
 
     private void loadShelvesMenu() {
-        navView.getMenu().clear();
-
-        refCurrUserShelves.addListenerForSingleValueEvent(new ValueEventListener() {
+        refCurrUserShelves.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                navView.getMenu().clear();
                 for (DataSnapshot data : snapshot.getChildren())
                 {
                     navView.getMenu().add(data.getKey());
@@ -187,6 +208,7 @@ public class LibraryFragment extends Fragment
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
+                navView.getMenu().clear();
                 showFirebaseError(error);
             }
         });
@@ -231,6 +253,46 @@ public class LibraryFragment extends Fragment
         });
 
         dialog.show();
+    }
+
+    private void deleteShelf(String shelfName)
+    {
+        refCurrShelf.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+
+                Map<String, Object> updates = new HashMap<>();
+
+                for (DataSnapshot bookSnap : snapshot.getChildren())
+                {
+                    String bookId = bookSnap.getKey();
+                    //skip meta node
+                    if (bookId.equals("_meta"))
+                    {
+                        continue;
+                    }
+
+                    updates.put(
+                            Uid + "/SavedBooksIndex/" + bookId + "/" + shelfName,
+                            null
+                    );
+                }
+
+                // remove the shelf itself
+                updates.put(Uid + "/Shelves/" + shelfName,
+                        null
+                );
+
+                refUsers.updateChildren(updates)
+                        .addOnSuccessListener(aVoid -> {
+                            showShelf("favorites");
+                            Toast.makeText(getContext(), "Your shelf has been deleted", Toast.LENGTH_SHORT).show();})
+                        .addOnFailureListener(e -> Toast.makeText(getContext(), "Error occurred: " + e, Toast.LENGTH_SHORT).show());
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {}
+        });
     }
 }
 

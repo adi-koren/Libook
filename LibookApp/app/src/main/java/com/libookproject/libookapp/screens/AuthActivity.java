@@ -33,7 +33,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.libookproject.libookapp.FBRef;
 import com.libookproject.libookapp.R;
 
-public class AuthActivity extends AppCompatActivity
+public class AuthActivity extends MasterActivity
 {
     private TextView tVMode;
     private EditText eTEmail;
@@ -50,7 +50,7 @@ public class AuthActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
+//        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_auth);
 
         init();
@@ -89,9 +89,9 @@ public class AuthActivity extends AppCompatActivity
 
     private void loadSavedState(Bundle savedInstanceState)
     {
-        eTEmail.setText(savedInstanceState.getString("email", ""));
-        eTPass.setText(savedInstanceState.getString("pass", ""));
-        eTUsername.setText(savedInstanceState.getString("username", ""));
+//        eTEmail.setText(savedInstanceState.getString("email", ""));
+//        eTPass.setText(savedInstanceState.getString("pass", ""));
+//        eTUsername.setText(savedInstanceState.getString("username", ""));
         isSignInMode = savedInstanceState.getBoolean("mode", true);
         tVMsg.setText(savedInstanceState.getString("msg", ""));
         isLoading = savedInstanceState.getBoolean("loading", false);
@@ -308,9 +308,9 @@ public class AuthActivity extends AppCompatActivity
     {
         super.onSaveInstanceState(outState);
 
-        outState.putString("email", eTEmail.getText().toString());
-        outState.putString("pass", eTPass.getText().toString());
-        outState.putString("username", eTUsername.getText().toString());
+//        outState.putString("email", eTEmail.getText().toString());
+//        outState.putString("pass", eTPass.getText().toString());
+//        outState.putString("username", eTUsername.getText().toString());
         outState.putBoolean("mode", isSignInMode);
         outState.putString("msg", tVMsg.getText().toString());
         outState.putBoolean("loading", isLoading);
