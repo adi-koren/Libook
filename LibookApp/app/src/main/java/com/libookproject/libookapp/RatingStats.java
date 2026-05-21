@@ -1,8 +1,11 @@
 package com.libookproject.libookapp;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.SerializedName;
 
-public class RatingStats
+public class RatingStats implements Parcelable
 {
     @SerializedName("avg_rating")
     private double avg_rating;
@@ -55,5 +58,43 @@ public class RatingStats
 
     public int getStars_1() {
         return stars_1;
+    }
+
+    protected RatingStats(Parcel in) {
+        avg_rating = in.readDouble();
+        total_reviews = in.readInt();
+        stars_5 = in.readInt();
+        stars_4 = in.readInt();
+        stars_3 = in.readInt();
+        stars_2 = in.readInt();
+        stars_1 = in.readInt();
+    }
+
+    public static final Creator<RatingStats> CREATOR = new Creator<RatingStats>() {
+        @Override
+        public RatingStats createFromParcel(Parcel in) {
+            return new RatingStats(in);
+        }
+
+        @Override
+        public RatingStats[] newArray(int size) {
+            return new RatingStats[size];
+        }
+    };
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeDouble(avg_rating);
+        dest.writeInt(total_reviews);
+        dest.writeInt(stars_5);
+        dest.writeInt(stars_4);
+        dest.writeInt(stars_3);
+        dest.writeInt(stars_2);
+        dest.writeInt(stars_1);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
     }
 }

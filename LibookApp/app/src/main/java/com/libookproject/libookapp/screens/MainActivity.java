@@ -7,17 +7,20 @@ import android.net.NetworkCapabilities;
 import android.net.NetworkRequest;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.libookproject.libookapp.R;
 
-public class MainActivity extends MasterActivity {
+public class MainActivity extends MasterActivity
+{
+    private static final String KEY_ACTIVE_NAV_ID = "activeNavId";
+    private static final String KEY_NO_INTERNET_SHOWN = "noInternetShown";
+
     private FrameLayout frameLayout;
     private LibraryFragment libraryFragment;
     private SearchFragment searchFragment;
@@ -30,40 +33,66 @@ public class MainActivity extends MasterActivity {
     private ConnectivityManager.NetworkCallback networkCallback;
     private TextView tVNoInternet;
 
+    private boolean noInternetVisible = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-//        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
         init(savedInstanceState);
-        addNevigationBarInnerFragmentListener();
-        addNevigationBarPressedListener();
 
+        bottomNav.setVisibility(
+                getSupportFragmentManager().getBackStackEntryCount() > 0
+                        ? View.GONE
+                        : View.VISIBLE);
+
+        addNavigationBarInnerFragmentListener();
+        addNavigationBarPressedListener();
         setupNetworkTracking();
-        if (!isInternetAvailable())
+
+        if (savedInstanceState != null)
         {
-            showNoInternetMessage();
+            noInternetVisible = savedInstanceState.getBoolean(KEY_NO_INTERNET_SHOWN, false);
+            if (noInternetVisible)
+            {
+                tVNoInternet.setVisibility(View.VISIBLE);
+                tVNoInternet.setTranslationY(0);
+            }
         }
+        else
+        {
+            if (!isInternetAvailable())
+            {
+                showNoInternetMessage();
+            }
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState)
+    {
+        super.onSaveInstanceState(outState);
+
+        outState.putInt(KEY_ACTIVE_NAV_ID, bottomNav.getSelectedItemId());
+        outState.putBoolean(KEY_NO_INTERNET_SHOWN, noInternetVisible);
     }
 
     @Override
     protected void onStart()
     {
         super.onStart();
-
         NetworkRequest networkRequest = new NetworkRequest.Builder()
                 .addCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
                 .build();
-
         connectivityManager.registerNetworkCallback(networkRequest, networkCallback);
     }
 
     @Override
-    protected void onStop() {
+    protected void onStop()
+    {
         super.onStop();
-
         connectivityManager.unregisterNetworkCallback(networkCallback);
     }
 
@@ -73,7 +102,6 @@ public class MainActivity extends MasterActivity {
         frameLayout = findViewById(R.id.frameLayout);
         bottomNav = findViewById(R.id.bottomNavigation);
 
-        //app start first time
         if (savedInstanceState == null)
         {
             libraryFragment = new LibraryFragment();
@@ -81,7 +109,6 @@ public class MainActivity extends MasterActivity {
             communityFragment = new CommunityFragment();
             profileFragment = new ProfileFragment();
 
-            //default configuration
             activeFragment = searchFragment;
             bottomNav.setSelectedItemId(R.id.nav_search);
 
@@ -95,25 +122,26 @@ public class MainActivity extends MasterActivity {
                     .hide(profileFragment)
                     .add(R.id.frameLayout, searchFragment, "searchFragment")
                     .commit();
+
         }
         else
         {
-            //recover existing fragments
             libraryFragment = (LibraryFragment)getSupportFragmentManager().findFragmentByTag("libraryFragment");
             searchFragment = (SearchFragment)getSupportFragmentManager().findFragmentByTag("searchFragment");
             communityFragment = (CommunityFragment)getSupportFragmentManager().findFragmentByTag("communityFragment");
             profileFragment = (ProfileFragment)getSupportFragmentManager().findFragmentByTag("profileFragment");
 
-            //check which fragment was visible
-            if (libraryFragment != null && !libraryFragment.isHidden())
+            int savedNavId = savedInstanceState.getInt(KEY_ACTIVE_NAV_ID, R.id.nav_search);
+
+            if (savedNavId == R.id.nav_library)
             {
                 activeFragment = libraryFragment;
             }
-            else if (communityFragment != null && !communityFragment.isHidden())
+            else if (savedNavId == R.id.nav_community)
             {
                 activeFragment = communityFragment;
             }
-            else if (profileFragment != null && !profileFragment.isHidden())
+            else if (savedNavId == R.id.nav_profile)
             {
                 activeFragment = profileFragment;
             }
@@ -121,10 +149,14 @@ public class MainActivity extends MasterActivity {
             {
                 activeFragment = searchFragment;
             }
+
+            //setting the selected tab without on item listener
+            bottomNav.setOnItemSelectedListener(null);
+            bottomNav.setSelectedItemId(savedNavId);
         }
     }
 
-    private void addNevigationBarInnerFragmentListener()
+    private void addNavigationBarInnerFragmentListener()
     {
         getSupportFragmentManager()
                 .addOnBackStackChangedListener(() -> {
@@ -138,25 +170,27 @@ public class MainActivity extends MasterActivity {
                     }
                 });
     }
-    private void addNevigationBarPressedListener()
+
+    private void addNavigationBarPressedListener()
     {
         bottomNav.setOnItemSelectedListener(item -> {
-            if (item.getItemId() == R.id.nav_library)
+            int id = item.getItemId();
+            if (id == R.id.nav_library)
             {
                 switchFragment(libraryFragment);
                 return true;
             }
-            else if (item.getItemId() == R.id.nav_search)
+            else if (id == R.id.nav_search)
             {
                 switchFragment(searchFragment);
                 return true;
             }
-            else if (item.getItemId() == R.id.nav_community)
+            else if (id == R.id.nav_community)
             {
                 switchFragment(communityFragment);
                 return true;
             }
-            else if (item.getItemId() == R.id.nav_profile)
+            else if (id == R.id.nav_profile)
             {
                 switchFragment(profileFragment);
                 return true;
@@ -183,27 +217,24 @@ public class MainActivity extends MasterActivity {
 
     private boolean isInternetAvailable()
     {
-        ConnectivityManager cm = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
-
+        ConnectivityManager cm =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         Network network = cm.getActiveNetwork();
         if (network == null)
         {
             return false;
         }
-
         NetworkCapabilities capabilities = cm.getNetworkCapabilities(network);
-
-        return (capabilities != null &&
-                capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET));
+        return capabilities != null &&
+                capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
     }
 
     private void setupNetworkTracking()
     {
-        connectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        connectivityManager =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 
-        networkCallback = new ConnectivityManager.NetworkCallback()
-        {
-
+        networkCallback = new ConnectivityManager.NetworkCallback() {
             @Override
             public void onAvailable(Network network) {
                 runOnUiThread(() -> hideNoInternetMessage());
@@ -216,18 +247,23 @@ public class MainActivity extends MasterActivity {
         };
     }
 
-    private void showNoInternetMessage() {
-
+    private void showNoInternetMessage()
+    {
+        noInternetVisible = true;
         tVNoInternet.setVisibility(View.VISIBLE);
-
         tVNoInternet.animate()
                 .translationY(0)
                 .setDuration(300)
                 .start();
     }
 
-    private void hideNoInternetMessage() {
+    private void hideNoInternetMessage()
+    {
+        noInternetVisible = false;
+        animateHideNoInternet();
+    }
 
+    private void animateHideNoInternet() {
         tVNoInternet.animate()
                 .translationY(-tVNoInternet.getHeight())
                 .setDuration(300)
@@ -235,9 +271,7 @@ public class MainActivity extends MasterActivity {
                 .start();
     }
 
-    public void notifyPostsHaveChanged()
-    {
-        //communityFragment.setNeedsRefresh(true);
+    public void notifyPostsHaveChanged() {
         profileFragment.setNeedsRefresh(true);
     }
 }

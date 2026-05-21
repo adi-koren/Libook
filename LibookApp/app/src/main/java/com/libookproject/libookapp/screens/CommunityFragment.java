@@ -26,20 +26,25 @@ import java.util.List;
 
 public class CommunityFragment extends Fragment implements AdapterView.OnItemClickListener
 {
+    private static final String KEY_POSTS_LIST     = "postsList";
+    private static final String KEY_START_INDEX    = "startIndex";
+    private static final String KEY_FOOTER_VISIBLE = "footerVisible";
+    private static final String KEY_LIST_POSITION  = "listPosition";
+    private static final String KEY_LIST_OFFSET    = "listOffset";
+
     private View view;
     private EditText eTSearch;
     private ListView lVPosts;
     private ImageButton btnSearch;
     private Button btnAddPost;
+    private View footerView;
+    private TextView tvShowMore;
 
     private ArrayList<LitePost> postsList;
     private CustomAdapterCommunity adp;
-
-    private View footerView;
-    private TextView tvShowMore;
     private int startIndex = 0;
 
-    private boolean SEARCH_CLICKED_MODE = true;
+    private final boolean SEARCH_CLICKED_MODE = true;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -48,16 +53,45 @@ public class CommunityFragment extends Fragment implements AdapterView.OnItemCli
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+                             Bundle savedInstanceState)
+    {
         view = inflater.inflate(R.layout.fragment_community, container, false);
 
         init();
-        btnSearch.setOnClickListener(v -> {searchClicked(SEARCH_CLICKED_MODE);});
-        btnAddPost.setOnClickListener(v -> {addPostClicked();});
+        attachListeners();
 
-        searchClicked(SEARCH_CLICKED_MODE);
+        if (savedInstanceState == null)
+        {
+            //load newest posts from the server
+            searchClicked(SEARCH_CLICKED_MODE);
+        }
+        else
+        {
+            //restore the data
+            restoreState(savedInstanceState);
+        }
+
         return view;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState)
+    {
+        super.onSaveInstanceState(outState);
+
+        //check if its hidden
+        if (footerView == null)
+        {
+            return;
+        }
+
+        outState.putParcelableArrayList(KEY_POSTS_LIST, postsList);
+        outState.putInt(KEY_START_INDEX, startIndex);
+        outState.putBoolean(KEY_FOOTER_VISIBLE,
+                footerView.getVisibility() == View.VISIBLE);
+        outState.putInt(KEY_LIST_POSITION, lVPosts.getFirstVisiblePosition());
+        View firstChild = lVPosts.getChildAt(0);
+        outState.putInt(KEY_LIST_OFFSET, firstChild == null ? 0 : firstChild.getTop());
     }
 
     private void init()
@@ -69,10 +103,7 @@ public class CommunityFragment extends Fragment implements AdapterView.OnItemCli
 
         footerView = LayoutInflater.from(getContext())
                 .inflate(R.layout.show_more_footer, lVPosts, false);
-
         tvShowMore = footerView.findViewById(R.id.tvShowMore);
-        tvShowMore.setOnClickListener(v -> {searchClicked(!SEARCH_CLICKED_MODE);});
-
         footerView.setVisibility(View.GONE);
         lVPosts.addFooterView(footerView);
         lVPosts.setOnItemClickListener(this);
@@ -82,15 +113,39 @@ public class CommunityFragment extends Fragment implements AdapterView.OnItemCli
         lVPosts.setAdapter(adp);
     }
 
+    private void attachListeners()
+    {
+        btnSearch.setOnClickListener(v -> searchClicked(SEARCH_CLICKED_MODE));
+        tvShowMore.setOnClickListener(v -> searchClicked(!SEARCH_CLICKED_MODE));
+        btnAddPost.setOnClickListener(v -> addPostClicked());
+    }
+
+    private void restoreState(Bundle savedInstanceState)
+    {
+        //restore posts list
+        ArrayList<LitePost> saved =
+                savedInstanceState.getParcelableArrayList(KEY_POSTS_LIST);
+        if (saved != null)
+        {
+            postsList.addAll(saved);
+            adp.notifyDataSetChanged();
+        }
+
+        //restore start index
+        startIndex = savedInstanceState.getInt(KEY_START_INDEX, 0);
+
+        // Restore footer visibility
+        boolean footerVisible = savedInstanceState.getBoolean(KEY_FOOTER_VISIBLE, false);
+        footerView.setVisibility(footerVisible ? View.VISIBLE : View.GONE);
+
+        //restore scroll position
+        int pos = savedInstanceState.getInt(KEY_LIST_POSITION, 0);
+        int offset = savedInstanceState.getInt(KEY_LIST_OFFSET, 0);
+        lVPosts.post(() -> lVPosts.setSelectionFromTop(pos, offset));
+    }
+
     public void searchClicked(boolean isSearchClickedMode) {
-
         String q = eTSearch.getText().toString();
-
-//        if (q.length() == 0)
-//        {
-//            eTSearch.setError("Field can't be empty");
-//            return;
-//        }
 
         if (isSearchClickedMode)
         {
@@ -131,8 +186,9 @@ public class CommunityFragment extends Fragment implements AdapterView.OnItemCli
 
             @Override
             public void onSearchPostsError(String err) {
-                Toast.makeText(getContext(), err, Toast.LENGTH_SHORT).show();
-                System.out.println(err);
+                if (isAdded()) {
+                    Toast.makeText(getContext(), err, Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
@@ -148,18 +204,16 @@ public class CommunityFragment extends Fragment implements AdapterView.OnItemCli
 
         requireActivity().getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.frameLayout, postInfoFragment)
+                .add(R.id.frameLayout, postInfoFragment)
                 .addToBackStack(null)
                 .commit();
     }
 
     public void addPostClicked()
     {
-        AddPostFragment addPostFragment = new AddPostFragment();
-
         requireActivity().getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.frameLayout, addPostFragment)
+                .add(R.id.frameLayout, new AddPostFragment())
                 .addToBackStack(null)
                 .commit();
     }

@@ -1,7 +1,6 @@
 package com.libookproject.libookapp.screens;
 
 import static com.libookproject.libookapp.FBRef.Uid;
-import static com.libookproject.libookapp.FBRef.refAuth;
 import static com.libookproject.libookapp.FBRef.refUsers;
 
 import android.app.AlertDialog;
@@ -39,66 +38,114 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-///**
-// * A simple {@link Fragment} subclass.
-// * Use the {@link LibraryFragment#newInstance} factory method to
-// * create an instance of this fragment.
-// */
 public class LibraryFragment extends Fragment
 {
-    private View view;
-    private DatabaseReference refCurrUserShelves;
-    private DatabaseReference refCurrShelf;
-    private RecyclerView recyclerViewBooks;
-    private ValueEventListener shelfListener = null;
-    private CustomAdapterLibrary adpBooks;
-    private ArrayList<SavedBook> booksList;
+    private static final String KEY_SHELF_NAME = "shelfName";
+    private static final String KEY_DRAWER_OPEN = "drawerOpen";
+    private static final String KEY_RECYCLER_STATE = "recyclerState";
 
+    private View view;
     private DrawerLayout drawerLayout;
     private NavigationView navView;
     private ImageView menuIcon;
     private TextView tvShelfName;
     private TextView tvBookCount;
     private ImageButton btnDeleteShelf;
+    private RecyclerView recyclerViewBooks;
+
+    private DatabaseReference refCurrUserShelves;
+    private DatabaseReference refCurrShelf;
+    private ValueEventListener shelfListener = null;
+    private ValueEventListener shelvesListener = null;
+    private CustomAdapterLibrary adpBooks;
+    private ArrayList<SavedBook> booksList;
+
+    // The shelf that is currently displayed - default "favorites".
+    private String currentShelfName = "favorites";
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState)
-    {
-        // Inflate the layout for this fragment
-        view =  inflater.inflate(R.layout.fragment_library, container, false);
+                             Bundle savedInstanceState) {
+        view = inflater.inflate(R.layout.fragment_library, container, false);
         refCurrUserShelves = refUsers.child(Uid).child("Shelves");
 
         init();
-        loadBooks("favorites");
+
+        // restore which shelf was open
+        if (savedInstanceState != null)
+        {
+            currentShelfName = savedInstanceState.getString(KEY_SHELF_NAME, "favorites");
+        }
+
+        tvShelfName.setText(currentShelfName);
+        btnDeleteShelf.setVisibility(
+                currentShelfName.equals("favorites") ? View.GONE : View.VISIBLE);
+
+        loadBooks(currentShelfName);
         loadShelvesMenu();
 
-        menuIcon.setOnClickListener(v ->
-                drawerLayout.openDrawer(GravityCompat.END)
-        );
+        //restore drawer open state
+        if (savedInstanceState != null) {
+            boolean drawerWasOpen = savedInstanceState.getBoolean(KEY_DRAWER_OPEN, false);
+            if (drawerWasOpen)
+            {
+                drawerLayout.post(() -> drawerLayout.openDrawer(GravityCompat.END));
+            }
+        }
 
-        navView.setNavigationItemSelectedListener(item -> {
-            showShelf(item.getTitle().toString());
-            drawerLayout.closeDrawer(navView);
-            return true;
-        });
+        //restore RecyclerView scroll position
+        if (savedInstanceState != null)
+        {
+            Bundle recyclerState = savedInstanceState.getBundle(KEY_RECYCLER_STATE);
+            if (recyclerState != null)
+            {
+                recyclerViewBooks.post(() ->
+                {
+                    RecyclerView.LayoutManager lm = recyclerViewBooks.getLayoutManager();
+                    if (lm != null)
+                    {
+                        lm.onRestoreInstanceState(recyclerState.getParcelable(KEY_RECYCLER_STATE));
+                    }
+                });
+            }
+        }
 
-        View headerView = navView.getHeaderView(0);
-        ImageButton btnAddShelf = headerView.findViewById(R.id.btnAddShelf);
+        attachListeners();
 
-        btnAddShelf.setOnClickListener(v -> showAddShelfDialog());
-        btnDeleteShelf.setOnClickListener(v -> {new AlertDialog.Builder(getContext())
-                .setTitle("Delete Shelf")
-                .setMessage("This action cannot be undone.")
-                .setPositiveButton("Delete", (dialog, which) -> deleteShelf(tvShelfName.getText().toString()))
-                .setNegativeButton("Cancel", null)
-                .show();});
         return view;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        //check if is hidden
+        if (drawerLayout == null)
+        {
+            return;
+        }
+
+        //save which shelf is open
+        outState.putString(KEY_SHELF_NAME, currentShelfName);
+
+        //save drawer open/closed state
+        outState.putBoolean(KEY_DRAWER_OPEN,
+                drawerLayout.isDrawerOpen(GravityCompat.END));
+
+        //save RecyclerView scroll position
+        RecyclerView.LayoutManager lm = recyclerViewBooks.getLayoutManager();
+        if (lm != null)
+        {
+            Bundle recyclerState = new Bundle();
+            recyclerState.putParcelable(KEY_RECYCLER_STATE, lm.onSaveInstanceState());
+            outState.putBundle(KEY_RECYCLER_STATE, recyclerState);
+        }
     }
 
     @Override
@@ -106,9 +153,14 @@ public class LibraryFragment extends Fragment
     {
         super.onDestroyView();
 
-        if (shelfListener != null && refCurrShelf != null)
-        {
+        //remove shelf listener
+        if (shelfListener != null && refCurrShelf != null) {
             refCurrShelf.removeEventListener(shelfListener);
+        }
+
+        //remove shelves menu listener
+        if (shelvesListener != null && refCurrUserShelves != null) {
+            refCurrUserShelves.removeEventListener(shelvesListener);
         }
     }
 
@@ -118,14 +170,12 @@ public class LibraryFragment extends Fragment
         navView = view.findViewById(R.id.navView);
         menuIcon = view.findViewById(R.id.menuIcon);
         btnDeleteShelf = view.findViewById(R.id.btnDeleteShelf);
-
         tvShelfName = view.findViewById(R.id.tvShelfName);
         tvBookCount = view.findViewById(R.id.tvBookCount);
 
         recyclerViewBooks = view.findViewById(R.id.recyclerViewBooks);
         GridLayoutManager layoutManager = new GridLayoutManager(getContext(), 3);
-        layoutManager.setReverseLayout(false);      // newest on top
-
+        layoutManager.setReverseLayout(false);
         recyclerViewBooks.setLayoutManager(layoutManager);
 
         booksList = new ArrayList<>();
@@ -133,34 +183,55 @@ public class LibraryFragment extends Fragment
             BookInfoFragment bookInfoFragment = new BookInfoFragment();
 
             Bundle bundle = new Bundle();
-            bundle.putString("id",book.getId());
+            bundle.putString("id", book.getId());
             bookInfoFragment.setArguments(bundle);
 
             requireActivity().getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.frameLayout, bookInfoFragment)
+                    .add(R.id.frameLayout, bookInfoFragment)
                     .addToBackStack(null)
                     .commit();
         });
         recyclerViewBooks.setAdapter(adpBooks);
     }
 
+    private void attachListeners()
+    {
+        menuIcon.setOnClickListener(v ->
+                drawerLayout.openDrawer(GravityCompat.END));
+
+        navView.setNavigationItemSelectedListener(item -> {
+            showShelf(item.getTitle().toString());
+            drawerLayout.closeDrawer(navView);
+            return true;
+        });
+
+        View headerView = navView.getHeaderView(0);
+        ImageButton btnAddShelf = headerView.findViewById(R.id.btnAddShelf);
+        btnAddShelf.setOnClickListener(v -> showAddShelfDialog());
+
+        btnDeleteShelf.setOnClickListener(v ->
+                new AlertDialog.Builder(getContext())
+                        .setTitle("Delete Shelf")
+                        .setMessage("This action cannot be undone.")
+                        .setPositiveButton("Delete", (dialog, which) ->
+                                deleteShelf(tvShelfName.getText().toString()))
+                        .setNegativeButton("Cancel", null)
+                        .show());
+    }
+
     private void showShelf(String shelfName)
     {
+        currentShelfName = shelfName;
         tvShelfName.setText(shelfName);
         loadBooks(shelfName);
-        if (!shelfName.equals("favorites"))
-        {
-            btnDeleteShelf.setVisibility(View.VISIBLE);
-        }
-        else
-        {
-            btnDeleteShelf.setVisibility(View.GONE);
-        }
+        btnDeleteShelf.setVisibility(
+                shelfName.equals("favorites") ? View.GONE : View.VISIBLE);
     }
 
     private void loadBooks(String shelfName)
     {
+        //remove previous listener before switching shelves
         if (shelfListener != null && refCurrShelf != null) {
             refCurrShelf.removeEventListener(shelfListener);
         }
@@ -170,16 +241,13 @@ public class LibraryFragment extends Fragment
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 booksList.clear();
-                for (DataSnapshot data: snapshot.getChildren()) {
-                    if (data.getValue() instanceof String)
-                    {
-                        booksList.add(new SavedBook((String)data.getValue(), data.getKey()));
+                for (DataSnapshot data : snapshot.getChildren()) {
+                    if (data.getValue() instanceof String) {
+                        booksList.add(new SavedBook(
+                                (String) data.getValue(), data.getKey()));
                     }
                 }
-
-                // Reverse list for proper display (first book bottom-left -> top-left)
                 Collections.reverse(booksList);
-
                 adpBooks.notifyDataSetChanged();
                 tvBookCount.setText(booksList.size() + " ספרים");
             }
@@ -195,13 +263,13 @@ public class LibraryFragment extends Fragment
         refCurrShelf.addValueEventListener(shelfListener);
     }
 
-    private void loadShelvesMenu() {
-        refCurrUserShelves.addValueEventListener(new ValueEventListener() {
+    private void loadShelvesMenu()
+    {
+        shelvesListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 navView.getMenu().clear();
-                for (DataSnapshot data : snapshot.getChildren())
-                {
+                for (DataSnapshot data : snapshot.getChildren()) {
                     navView.getMenu().add(data.getKey());
                 }
             }
@@ -211,16 +279,8 @@ public class LibraryFragment extends Fragment
                 navView.getMenu().clear();
                 showFirebaseError(error);
             }
-        });
-    }
-
-    private void showFirebaseError(DatabaseError error)
-    {
-        if (getContext() != null) {
-            Toast.makeText(getContext(),
-                    "Failed to load books. Check your connection.",
-                    Toast.LENGTH_SHORT).show();
-        }
+        };
+        refCurrUserShelves.addValueEventListener(shelvesListener);
     }
 
     private void showAddShelfDialog()
@@ -235,19 +295,19 @@ public class LibraryFragment extends Fragment
 
         btnCancel.setOnClickListener(v -> dialog.dismiss());
 
-        btnConfirm.setOnClickListener(v -> {
+        btnConfirm.setOnClickListener(v ->
+        {
             String shelfName = etShelfName.getText().toString().trim();
             if (!shelfName.isEmpty()) {
-                refCurrUserShelves.child(shelfName).child("_meta").setValue(true).addOnFailureListener(e -> {
-                    Toast.makeText(getContext(),
-                            "Failed to create shelf",
-                            Toast.LENGTH_SHORT).show();
-                });
-                loadShelvesMenu();
+                refCurrUserShelves.child(shelfName).child("_meta")
+                        .setValue(true)
+                        .addOnFailureListener(e ->
+                                Toast.makeText(getContext(),
+                                        "Failed to create shelf",
+                                        Toast.LENGTH_SHORT).show());
                 dialog.dismiss();
             }
-            else
-            {
+            else {
                 etShelfName.setError("Name can not be empty");
             }
         });
@@ -260,40 +320,41 @@ public class LibraryFragment extends Fragment
         refCurrShelf.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
-
                 Map<String, Object> updates = new HashMap<>();
 
-                for (DataSnapshot bookSnap : snapshot.getChildren())
-                {
+                for (DataSnapshot bookSnap : snapshot.getChildren()) {
                     String bookId = bookSnap.getKey();
-                    //skip meta node
-                    if (bookId.equals("_meta"))
-                    {
-                        continue;
-                    }
-
-                    updates.put(
-                            Uid + "/SavedBooksIndex/" + bookId + "/" + shelfName,
-                            null
-                    );
+                    if (bookId.equals("_meta")) continue;
+                    updates.put(Uid + "/SavedBooksIndex/" + bookId + "/" + shelfName, null);
                 }
-
-                // remove the shelf itself
-                updates.put(Uid + "/Shelves/" + shelfName,
-                        null
-                );
+                updates.put(Uid + "/Shelves/" + shelfName, null);
 
                 refUsers.updateChildren(updates)
                         .addOnSuccessListener(aVoid -> {
                             showShelf("favorites");
-                            Toast.makeText(getContext(), "Your shelf has been deleted", Toast.LENGTH_SHORT).show();})
-                        .addOnFailureListener(e -> Toast.makeText(getContext(), "Error occurred: " + e, Toast.LENGTH_SHORT).show());
+                            Toast.makeText(getContext(),
+                                    "Your shelf has been deleted",
+                                    Toast.LENGTH_SHORT).show();
+                        })
+                        .addOnFailureListener(e ->
+                                Toast.makeText(getContext(),
+                                        "Error occurred: " + e,
+                                        Toast.LENGTH_SHORT).show());
             }
 
             @Override
-            public void onCancelled(DatabaseError error) {}
+            public void onCancelled(DatabaseError error) {
+                showFirebaseError(error);
+            }
         });
     }
+
+    private void showFirebaseError(DatabaseError error)
+    {
+        if (getContext() != null) {
+            Toast.makeText(getContext(),
+                    "Error: Check your connection.",
+                    Toast.LENGTH_SHORT).show();
+        }
+    }
 }
-
-

@@ -1,10 +1,13 @@
 package com.libookproject.libookapp;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
 
-public class Post
+public class Post implements Parcelable
 {
     @SerializedName("post_id")
     private String id;
@@ -77,5 +80,47 @@ public class Post
 
     public RatingStats getRating_stats() {
         return rating_stats;
+    }
+
+    protected Post(Parcel in) {
+        id = in.readString();
+        user_id = in.readString();
+        username = in.readString();
+        headline = in.readString();
+        content = in.readString();
+        created_at = in.readString();
+        reviews = in.createTypedArrayList(Review.CREATOR);
+        user_review = in.readParcelable(Review.class.getClassLoader());
+        rating_stats = in.readParcelable(RatingStats.class.getClassLoader());
+    }
+
+    public static final Creator<Post> CREATOR = new Creator<Post>() {
+        @Override
+        public Post createFromParcel(Parcel in) {
+            return new Post(in);
+        }
+
+        @Override
+        public Post[] newArray(int size) {
+            return new Post[size];
+        }
+    };
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
+        dest.writeString(user_id);
+        dest.writeString(username);
+        dest.writeString(headline);
+        dest.writeString(content);
+        dest.writeString(created_at);
+        dest.writeTypedList(reviews);
+        dest.writeParcelable(user_review, flags);
+        dest.writeParcelable(rating_stats, flags);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
     }
 }

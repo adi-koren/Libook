@@ -75,17 +75,23 @@ public class AddPostFragment extends Fragment
             @Override
             public void onPublishPostSucceeded(int postId)
             {
-                eTHeadline.setText("");
-                eTContent.setText("");
-                Toast.makeText(getContext(), "Your post has been published", Toast.LENGTH_SHORT).show();
-                ((MainActivity)requireActivity()).notifyPostsHaveChanged();
+                if (isAdded())
+                {
+                    eTHeadline.setText("");
+                    eTContent.setText("");
+                    Toast.makeText(getContext(), "Your post has been published", Toast.LENGTH_SHORT).show();
+                    ((MainActivity)requireActivity()).notifyPostsHaveChanged();
+                }
             }
 
             @Override
             public void onPublishPostFailed(String err)
             {
-                Toast.makeText(getContext(), err, Toast.LENGTH_SHORT).show();
-                System.out.println(err);
+                if (isAdded())
+                {
+                    Toast.makeText(getContext(), err, Toast.LENGTH_SHORT).show();
+                    System.out.println(err);
+                }
             }
         });
     }

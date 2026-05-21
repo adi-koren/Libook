@@ -1,8 +1,11 @@
 package com.libookproject.libookapp;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.SerializedName;
 
-public class Review {
+public class Review implements Parcelable {
     @SerializedName("review_id")
     private String review_id;
     @SerializedName("username")
@@ -40,5 +43,39 @@ public class Review {
 
     public String getCreated_at() {
         return created_at;
+    }
+
+    protected Review(Parcel in) {
+        review_id = in.readString();
+        username = in.readString();
+        comment = in.readString();
+        rating = in.readInt();
+        created_at = in.readString();
+    }
+
+    public static final Creator<Review> CREATOR = new Creator<Review>() {
+        @Override
+        public Review createFromParcel(Parcel in) {
+            return new Review(in);
+        }
+
+        @Override
+        public Review[] newArray(int size) {
+            return new Review[size];
+        }
+    };
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(review_id);
+        dest.writeString(username);
+        dest.writeString(comment);
+        dest.writeInt(rating);
+        dest.writeString(created_at);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
     }
 }

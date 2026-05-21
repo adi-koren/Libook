@@ -28,10 +28,17 @@ import com.libookproject.libookapp.serverApi.CommunityApiService;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProfileFragment extends Fragment implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener{
-    private View view;
-    private boolean needsRefresh = true;
+public class ProfileFragment extends Fragment implements
+        AdapterView.OnItemClickListener,
+        AdapterView.OnItemLongClickListener {
 
+    private static final String KEY_POSTS_LIST = "postsList";
+    private static final String KEY_POSTS_COUNT = "postsCount";
+    private static final String KEY_NEEDS_REFRESH = "needsRefresh";
+    private static final String KEY_LIST_POSITION = "listPosition";
+    private static final String KEY_LIST_OFFSET = "listOffset";
+
+    private View view;
     private TextView tVUsername;
     private TextView tVPostsCount;
     private ListView lVPosts;
@@ -40,32 +47,51 @@ public class ProfileFragment extends Fragment implements AdapterView.OnItemClick
     private ArrayList<LitePost> postsList;
     private CustomAdapterCommunity adp;
 
+    //starts true so that the first onResume will loads posts.
+    private boolean needsRefresh = true;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_profile, container, false);
 
         init();
-        //getPosts();
-        //add listener to logout button
+        restoreState(savedInstanceState);
+
         return view;
     }
 
     @Override
-    public void onResume()
-    {
+    public void onResume() {
         super.onResume();
+
         if (needsRefresh)
         {
             getPosts();
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        //check if is hidden
+        if (lVPosts == null)
+        {
+            return;
+        }
+
+        outState.putParcelableArrayList(KEY_POSTS_LIST, postsList);
+        outState.putString(KEY_POSTS_COUNT, tVPostsCount.getText().toString());
+        outState.putBoolean(KEY_NEEDS_REFRESH, needsRefresh);
+        outState.putInt(KEY_LIST_POSITION, lVPosts.getFirstVisiblePosition());
+        View firstChild = lVPosts.getChildAt(0);
+        outState.putInt(KEY_LIST_OFFSET, firstChild == null ? 0 : firstChild.getTop());
     }
 
     private void init()
@@ -75,10 +101,9 @@ public class ProfileFragment extends Fragment implements AdapterView.OnItemClick
 
         tVPostsCount = view.findViewById(R.id.tVPostsCount);
         lVPosts = view.findViewById(R.id.lVPosts);
-
         btnLogout = view.findViewById(R.id.btnLogout);
-        btnLogout.setOnClickListener(v -> logout());
 
+        btnLogout.setOnClickListener(v -> logout());
         lVPosts.setOnItemClickListener(this);
         lVPosts.setOnItemLongClickListener(this);
 
@@ -87,75 +112,101 @@ public class ProfileFragment extends Fragment implements AdapterView.OnItemClick
         lVPosts.setAdapter(adp);
     }
 
+    private void restoreState(Bundle savedInstanceState)
+    {
+        if (savedInstanceState == null)
+        {
+            return;
+        }
+
+        //restore posts list
+        ArrayList<LitePost> saved =
+                savedInstanceState.getParcelableArrayList(KEY_POSTS_LIST);
+        if (saved != null)
+        {
+            postsList.addAll(saved);
+            adp.notifyDataSetChanged();
+        }
+
+        //restore posts count
+        String savedCount = savedInstanceState.getString(KEY_POSTS_COUNT);
+        if (savedCount != null) {
+            tVPostsCount.setText(savedCount);
+        }
+
+        //restore needsRefresh
+        needsRefresh = savedInstanceState.getBoolean(KEY_NEEDS_REFRESH, true);
+
+        //restore scroll position
+        int pos = savedInstanceState.getInt(KEY_LIST_POSITION, 0);
+        int offset = savedInstanceState.getInt(KEY_LIST_OFFSET, 0);
+        lVPosts.post(() -> lVPosts.setSelectionFromTop(pos, offset));
+    }
+
     public void setNeedsRefresh(boolean state)
     {
         needsRefresh = state;
     }
 
-    private void getPosts() {
+    private void getPosts()
+    {
         CommunityApiService.getUserPosts(Uid, new ApiCallback<List<LitePost>>() {
             @Override
             public void onGetUserPostsSucceeded(List<LitePost> posts) {
                 if (isAdded())
                 {
                     postsList.clear();
+                    postsList.addAll(posts);
+                    adp.notifyDataSetChanged();
 
-                    if (!posts.isEmpty())
+                    tVPostsCount.setText("Posts: " + posts.size());
+
+                    if (posts.isEmpty())
                     {
-                        postsList.addAll(posts);
-                        adp.notifyDataSetChanged();
+                        // put here the "post your first..." message if needed
                     }
-                    else
-                    {
-                        adp.notifyDataSetChanged();
-                        //put here the "post your first..."
-                    }
-                    tVPostsCount.setText("Posts: " + Integer.toString(posts.size()));
+
                     setNeedsRefresh(false);
                 }
             }
 
             @Override
-            public void onGetUserPostsFailed(String err) {
-                Toast.makeText(getContext(), err, Toast.LENGTH_SHORT).show();
-                System.out.println(err);
+            public void onGetUserPostsFailed(String err)
+            {
+                if (isAdded())
+                {
+                    Toast.makeText(getContext(), err, Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
 
     private void deletePostClicked(String postId)
     {
-        CommunityApiService.deletePost(postId, new ApiCallback() {
+        CommunityApiService.deletePost(postId, new ApiCallback()
+        {
             @Override
             public void onDeletePostSucceeded() {
-                getPosts();
-                Toast.makeText(getContext(), "Your post has been deleted", Toast.LENGTH_SHORT).show();
+                if (isAdded())
+                {
+                    getPosts();
+                    Toast.makeText(getContext(),
+                            "Your post has been deleted", Toast.LENGTH_SHORT).show();
+                }
             }
 
             @Override
             public void onDeletePostFailed(String err) {
-                Toast.makeText(getContext(), err, Toast.LENGTH_SHORT).show();
-                System.out.println(err);
+                if (isAdded()) {
+                    Toast.makeText(getContext(), err, Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
 
-    private void logout()
-    {
-        refAuth.signOut();
-
-        Uid = null;
-        username = null;
-
-        Intent intent = new Intent(getActivity(), AuthActivity.class);
-
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
-                Intent.FLAG_ACTIVITY_CLEAR_TASK);
-
-        startActivity(intent);
-
-        requireActivity().finish();
-    }
+    // ---------------------------------------------------------------
+    // Navigation
+    // ---------------------------------------------------------------
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -167,19 +218,35 @@ public class ProfileFragment extends Fragment implements AdapterView.OnItemClick
 
         requireActivity().getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.frameLayout, postInfoFragment)
+                .add(R.id.frameLayout, postInfoFragment)
                 .addToBackStack(null)
                 .commit();
     }
 
     @Override
-    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+    public boolean onItemLongClick(AdapterView<?> parent, View view,
+                                   int position, long id) {
         new AlertDialog.Builder(getContext())
                 .setTitle("Delete Post")
                 .setMessage("This action cannot be undone.")
-                .setPositiveButton("Delete", (dialog, which) -> deletePostClicked(view.getTag().toString()))
+                .setPositiveButton("Delete", (dialog, which) ->
+                        deletePostClicked(view.getTag().toString()))
                 .setNegativeButton("Cancel", null)
                 .show();
         return true;
+    }
+
+    private void logout()
+    {
+        refAuth.signOut();
+
+        Uid = null;
+        username = null;
+
+        Intent intent = new Intent(getActivity(), AuthActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+
+        requireActivity().finish();
     }
 }

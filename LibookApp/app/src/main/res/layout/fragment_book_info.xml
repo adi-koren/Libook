@@ -120,8 +120,7 @@
                 android:id="@+id/btnGenerate"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Generate AI Age Recommendation"
-                android:onClick="generateGeminiReco"/>
+                android:text="Generate AI Age Recommendation"/>
 
             <TextView
                 android:id="@+id/tVGeminiReco"

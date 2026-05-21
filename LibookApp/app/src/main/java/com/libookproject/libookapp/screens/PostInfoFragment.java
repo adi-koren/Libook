@@ -1,7 +1,6 @@
 package com.libookproject.libookapp.screens;
 
 import static com.libookproject.libookapp.FBRef.Uid;
-import static com.libookproject.libookapp.FBRef.refAuth;
 
 import android.os.Bundle;
 
@@ -22,37 +21,64 @@ import com.libookproject.libookapp.serverApi.CommunityApiService;
 
 public class PostInfoFragment extends Fragment
 {
-    private View view;
-    private String postId;
-    private ReviewsViewModel reviewsViewModel;
+    private static final String KEY_POST_INFO = "postInfo";
 
-    private Post postInfo;
+    private View view;
     private TextView tVHeadline;
     private TextView tVDate;
     private TextView tVUsername;
     private TextView tVContent;
 
+    private String postId;
+    private Post postInfo;
+    private ReviewsViewModel reviewsViewModel;
+
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null)
-        {
+        if (getArguments() != null) {
             postId = getArguments().getString("id");
         }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+                             Bundle savedInstanceState)
+    {
         view = inflater.inflate(R.layout.fragment_post_info, container, false);
 
         init();
-        reviewsViewModel = new ViewModelProvider(requireActivity()).get(ReviewsViewModel.class);
+
+        reviewsViewModel = new ViewModelProvider(requireActivity())
+                .get(ReviewsViewModel.class);
+
         setupReviewFragment();
-        showPostInfo();
+
+        if (savedInstanceState != null)
+        {
+            restoreState(savedInstanceState);
+        }
+        else
+        {
+            showPostInfo();
+        }
 
         return view;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState)
+    {
+        super.onSaveInstanceState(outState);
+
+        //check if is hidden
+        if (view == null)
+        {
+            return;
+        }
+
+        outState.putParcelable(KEY_POST_INFO, postInfo);
     }
 
     @Override
@@ -70,14 +96,37 @@ public class PostInfoFragment extends Fragment
         tVContent = view.findViewById(R.id.tVContent);
     }
 
-    private void setupReviewFragment()
-    {
-        ReviewsFragment reviewsFragment = new ReviewsFragment();
+    private void setupReviewFragment() {
+        //check if the reviews fragment already exists
+        Fragment existing = getChildFragmentManager()
+                .findFragmentById(R.id.reviewsFrameLayout);
 
-        getChildFragmentManager()
-                .beginTransaction()
-                .replace(R.id.reviewsFrameLayout, reviewsFragment)
-                .commit();
+        if (existing == null) {
+            getChildFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.reviewsFrameLayout, new ReviewsFragment())
+                    .commit();
+        }
+    }
+
+    private void restoreState(Bundle savedInstanceState) {
+        //restore post info
+        postInfo = savedInstanceState.getParcelable(KEY_POST_INFO);
+        if (postInfo != null)
+        {
+            bindData();
+
+            //notifying reviews fragment the reviews changed
+            reviewsViewModel.setFields(postInfo.getId(), postInfo.getReviews(),
+                    postInfo.getUser_review(), postInfo.getRating_stats());
+
+            ReviewsFragment fragment = (ReviewsFragment)
+                    getChildFragmentManager().findFragmentById(R.id.reviewsFrameLayout);
+            if (fragment != null)
+            {
+                fragment.bindData();
+            }
+        }
     }
 
     private void showPostInfo()
@@ -85,29 +134,28 @@ public class PostInfoFragment extends Fragment
         CommunityApiService.getPostInfo(postId, Uid, new ApiCallback<Post>()
         {
             @Override
-            public void onPostInfoLoaded(Post post)
-            {
-                reviewsViewModel.setFields(post.getId(), post.getReviews(),
-                        post.getUser_review(), post.getRating_stats());
-
-                postInfo = post;
-                bindData();
-
-                // notify ReviewsFragment
-                ReviewsFragment fragment = (ReviewsFragment)
-                        getChildFragmentManager().findFragmentById(R.id.reviewsFrameLayout);
-
-                if (fragment != null)
+            public void onPostInfoLoaded(Post post) {
+                if (isAdded())
                 {
-                    fragment.bindData();
+                    reviewsViewModel.setFields(post.getId(), post.getReviews(),
+                            post.getUser_review(), post.getRating_stats());
+
+                    postInfo = post;
+                    bindData();
+
+                    ReviewsFragment fragment = (ReviewsFragment)
+                            getChildFragmentManager().findFragmentById(R.id.reviewsFrameLayout);
+                    if (fragment != null) {
+                        fragment.bindData();
+                    }
                 }
             }
 
             @Override
-            public void onPostInfoError(String err)
-            {
-                Toast.makeText(getContext(), err, Toast.LENGTH_SHORT).show();
-                System.out.println(err);
+            public void onPostInfoError(String err) {
+                if (isAdded()) {
+                    Toast.makeText(getContext(), err, Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
