@@ -11,8 +11,18 @@ import androidx.appcompat.app.AppCompatDelegate;
 
 import com.libookproject.libookapp.R;
 
-public class MasterActivity extends AppCompatActivity {
-
+/**
+ * base activity class that all other activities in the app extend.
+ * provides shared functionality available across the entire app -
+ * a floating light/dark mode menu that is automatically
+ * attached to every screen that extends this class.
+ */
+public class MasterActivity extends AppCompatActivity
+{
+    /**
+     * initializes the activity. called by all subclasses with super.onCreate().
+     * @param savedInstanceState the saved state bundle, if the activity is being recreated.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -27,6 +37,11 @@ public class MasterActivity extends AppCompatActivity {
         attachModeMenu();
     }
 
+    /**
+     * add a floating mode toggle button to the root view of the screen.
+     * when clicked, shows a PopupMenu with light mode and dark mode options.
+     * this method is called automatically for every activity that extends MasterActivity.
+     */
     private void attachModeMenu() {
         ViewGroup rootView = findViewById(android.R.id.content);
 
@@ -44,6 +59,10 @@ public class MasterActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * handles the selection of a menu item from the mode toggle PopupMenu.
+     * applies the selected display mode (light or dark).
+     */
     private boolean onMenuItemSelected(int id)
     {
         if (id == R.id.menuLightMode)

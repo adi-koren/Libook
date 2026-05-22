@@ -13,6 +13,11 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+/**
+ * service class responsible for all book related API calls.
+ * provides static methods that wrap Retrofit calls and transfer results
+ * or errors to the provided ApiCallback.
+ */
 public class BooksApiService
 {
     public static void searchBooks(SearchRequest request, ApiCallback callback)

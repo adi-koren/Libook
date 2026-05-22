@@ -12,6 +12,11 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+/**
+ * service class responsible for all community post related API calls.
+ * provides static methods that wrap Retrofit calls and transfer results
+ * or errors to the provided ApiCallback.
+ */
 public class CommunityApiService
 {
     public static void searchPosts(String q, int startIndex, ApiCallback callback)

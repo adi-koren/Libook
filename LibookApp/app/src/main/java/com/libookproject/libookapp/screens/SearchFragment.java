@@ -34,6 +34,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * fragment responsible for searching books using the server API.
+ * supports four search modes: normal search, advanced filtered search, ISBN search,
+ * and "show more".
+ */
 public class SearchFragment extends Fragment implements AdapterView.OnItemClickListener
 {
     private static final String KEY_BOOKS_LIST = "booksList";
@@ -94,6 +99,7 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemClickL
         return view;
     }
 
+    //saves the current state of the fragment before it is destroyed.
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -103,27 +109,28 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemClickL
             return;
         }
 
-        //save the results list
+        //saves the results list
         outState.putParcelableArrayList(KEY_BOOKS_LIST, booksList);
 
-        // save start index state
+        // saves start index state
         outState.putInt(KEY_START_INDEX, startIndex);
 
-        //save the last request so "show more" still works
+        //saves the last request so "show more" still works
         outState.putParcelable(KEY_PREV_REQUEST, prevRequest);
 
-        //save if filter is opened/closed
+        //saves if filter is opened/closed
         outState.putBoolean(KEY_IS_EXPANDED, isExpanded);
 
-        //save if the "show more" footer was visible
+        //saves if the "show more" footer was visible
         outState.putBoolean(KEY_FOOTER_VISIBLE, footerView.getVisibility() == View.VISIBLE);
 
-        //save ListView scroll position so the user returns to the same spot
+        //saves ListView scroll position so the user returns to the same spot
         outState.putInt(KEY_LIST_POSITION, lVBooks.getFirstVisiblePosition());
         View firstChild = lVBooks.getChildAt(0);
         outState.putInt(KEY_LIST_OFFSET, firstChild == null ? 0 : firstChild.getTop());
     }
 
+    //initialize all the UI references
     private void init()
     {
         eTSearch = view.findViewById(R.id.eTSearch);
@@ -156,6 +163,7 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemClickL
         lVBooks.setAdapter(adp);
     }
 
+    //restores the fragment's UI state after recreation.
     private void restoreState(Bundle savedInstanceState)
     {
         if (savedInstanceState == null)
@@ -199,9 +207,12 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemClickL
         lVBooks.post(() -> lVBooks.setSelectionFromTop(pos, offset));
     }
 
+    //attaches click listeners to all interactive UI elements.
     private void attachListeners()
     {
-        btnSearch.setOnClickListener(v -> {
+        //normal search listener
+        btnSearch.setOnClickListener(v ->
+        {
             SearchRequest request = buildSearchRequest(NORMAL_SEARCH_MODE);
             if (request != null)
             {
@@ -209,6 +220,7 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemClickL
             }
         });
 
+        //toggle filter section listener
         layoutFilterHeader.setOnClickListener(v -> toggleFilters());
 
         btnAdvancedSearch.setOnClickListener(v -> {
@@ -220,6 +232,7 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemClickL
             }
         });
 
+        //isbn search lisener
         btnSearchISBN.setOnClickListener(v -> {
             toggleFilters();
             SearchRequest request = buildSearchRequest(ISBN_SEARCH_MODE);
@@ -229,6 +242,7 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemClickL
             }
         });
 
+        //show more search listener
         tvShowMore.setOnClickListener(v -> {
             SearchRequest request = buildSearchRequest(VIEW_MORE_SEARCH_MODE);
             if (request != null)
@@ -238,6 +252,9 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemClickL
         });
     }
 
+    /**
+     * sends a search request to the server API and handles the response.
+     */
     public void searchClicked(SearchRequest request, boolean isViewMoreMode)
     {
         if (!isViewMoreMode)
@@ -260,10 +277,12 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemClickL
                     booksList.addAll(books);
                     adp.notifyDataSetChanged();
 
+                    //check if there might be more books
                     if (books.size() == 10) {
                         footerView.setVisibility(View.VISIBLE);
                         tvShowMore.setEnabled(true);
-                    } else {
+                    }
+                    else {
                         footerView.setVisibility(View.GONE);
                     }
                     tvShowMore.setText("Show more");
@@ -282,6 +301,11 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemClickL
         prevRequest = request;
     }
 
+    /**
+     * called when a book item in the ListView is clicked.
+     * creates a BookInfoFragment, passes the selected book's ID as an argument,
+     * and pushes it onto the back stack to display the book's detail page.
+     */
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         BookInfoFragment bookInfoFragment = new BookInfoFragment();
@@ -297,6 +321,7 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemClickL
                 .commit();
     }
 
+    //toggles the advanced filters panel open or closed.
     private void toggleFilters() {
         if (isExpanded) {
             scrollFilters.setVisibility(View.GONE);
@@ -310,6 +335,15 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemClickL
         isExpanded = !isExpanded;
     }
 
+    /**
+     * builds and returns a SearchRequest based on the given search mode.
+     * in NORMAL mode: uses the main search field as a plain query string.
+     * in VIEW_MORE mode: reuses the previous request with an updated pagination index.
+     * in ADVANCED mode: collects title, author, included/excluded subjects and languages
+     *   from the filter fields and builds a structured query map. requires at least one field.
+     * in ISBN mode: uses the ISBN field to build a query map with a single "isbn" key.
+     * returns null and shows an error if required fields are empty.
+     */
     private SearchRequest buildSearchRequest(int searchMode) {
         Map<String, String> q_inter = new HashMap<>();
         if (searchMode != VIEW_MORE_SEARCH_MODE) {
@@ -393,6 +427,10 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemClickL
         }
     }
 
+    /**
+     * recursively collects the tags of all checked CheckBoxes within a ViewGroup.
+     * used to retrieve the selected subjects and languages from the filter panel.
+     */
     private List<String> getCheckedBoxes(ViewGroup parent) {
         List<String> selected = new ArrayList<>();
         for (int i = 0; i < parent.getChildCount(); i++) {

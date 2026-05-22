@@ -38,6 +38,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * fragment displaying the full details of a single book.
+ * shows the book's title, author, subjects, description, and cover image.
+ * embeds a ReviewsFragment as a child fragment for displaying and submitting reviews.
+ * allows the user to save the book to a shelf.
+ * supports generating an AI book recommendation using the Gemini API.
+ */
 public class BookInfoFragment extends Fragment implements AdapterView.OnItemSelectedListener
 {
     private static final String KEY_BOOK_INFO = "bookInfo";
@@ -100,6 +107,7 @@ public class BookInfoFragment extends Fragment implements AdapterView.OnItemSele
         return view;
     }
 
+    //saves the current state of the fragment before it is destroyed.
     @Override
     public void onSaveInstanceState(Bundle outState)
     {
@@ -123,6 +131,10 @@ public class BookInfoFragment extends Fragment implements AdapterView.OnItemSele
         outState.putString(KEY_NEW_SHELF, newSelectedShelf);
     }
 
+    /**
+     * called when the fragment is destroyed.
+     * clears the ReviewsViewModel to release its data before another book is opened later.
+     */
     @Override
     public void onDestroy()
     {
@@ -130,6 +142,11 @@ public class BookInfoFragment extends Fragment implements AdapterView.OnItemSele
         reviewsViewModel.clear();
     }
 
+    /**
+     * called when the fragment is paused.
+     * applies any shelf change the user made: removes the book from the previous shelf
+     * and adds it to the new shelf if they are different.
+     */
     @Override
     public void onPause()
     {
@@ -160,6 +177,10 @@ public class BookInfoFragment extends Fragment implements AdapterView.OnItemSele
         btnGenerate.setOnClickListener(v -> generateGeminiReco());
     }
 
+    /**
+     * sets up the ReviewsFragment as a child fragment inside the reviews container.
+     * only adds it if it doesn't already exist, to avoid duplicate fragments on recreation.
+     */
     private void setupReviewFragment()
     {
         //check if the reviews fragment already exists
@@ -175,6 +196,7 @@ public class BookInfoFragment extends Fragment implements AdapterView.OnItemSele
         }
     }
 
+    //restores the fragment's UI state after recreation.
     private void restoreState(Bundle savedInstanceState) {
         //restore book info
         bookInfo = savedInstanceState.getParcelable(KEY_BOOK_INFO);
@@ -211,6 +233,11 @@ public class BookInfoFragment extends Fragment implements AdapterView.OnItemSele
         enableSaveOption();
     }
 
+    /**
+     * fetches the full book data from the API using the book ID.
+     * on success, stores the book in bookInfo, binds its data to the UI,
+     * and notifies the ReviewsViewModel and ReviewsFragment with the loaded review data.
+     */
     private void showBookInfo()
     {
         String userId = refAuth.getUid();
@@ -241,6 +268,8 @@ public class BookInfoFragment extends Fragment implements AdapterView.OnItemSele
         });
     }
 
+
+    //binds the loaded book data to the UI views.
     private void bindData()
     {
         tVTitle.setText(bookInfo.getTitle());
@@ -263,6 +292,12 @@ public class BookInfoFragment extends Fragment implements AdapterView.OnItemSele
         }
     }
 
+    /**
+     * loads the user's shelves from Firebase and add them to the Spinner.
+     * if a shelf was previously selected (newSelectedShelf is not null), restores that selection.
+     * otherwise, calls showSavedMode() to check whether the book is already saved
+     * on any shelf and select it accordingly.
+     */
     private void enableSaveOption()
     {
         ArrayList<String> shelvesNames = new ArrayList<>();
@@ -285,7 +320,7 @@ public class BookInfoFragment extends Fragment implements AdapterView.OnItemSele
                         shelvesNames);
                 sSave.setAdapter(adp);
 
-                //check what is the shelf selection
+                //check if shelf already selected(after recreation)
                 if (newSelectedShelf != null)
                 {
                     int position = adp.getPosition(newSelectedShelf);
@@ -307,6 +342,12 @@ public class BookInfoFragment extends Fragment implements AdapterView.OnItemSele
         });
     }
 
+    /**
+     * checks Firebase's SavedBooksIndex to determine whether the book is already
+     * saved on any shelf. if found, selects that shelf in the Spinner,
+     * and sets prevSelectedShelf and newSelectedShelf accordingly.
+     * if not found, both shelf fields are set to null.
+     */
     private void showSavedMode() {
         DatabaseReference refSavedIndex = refUsers.child(refAuth.getUid())
                 .child("SavedBooksIndex").child(bookId);
@@ -347,6 +388,10 @@ public class BookInfoFragment extends Fragment implements AdapterView.OnItemSele
         });
     }
 
+    /**
+     * called when a shelf is selected in the Spinner.
+     * updates newSelectedShelf to the selected shelf name, or null if "save in" is selected.
+     */
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
     {
@@ -357,6 +402,11 @@ public class BookInfoFragment extends Fragment implements AdapterView.OnItemSele
     @Override
     public void onNothingSelected(AdapterView<?> parent) {}
 
+    /**
+     * adds the current book to the specified shelf in Firebase.
+     * store the book's image URL in the shelf node and sets a flag in
+     * SavedBooksIndex to track which shelves the book belongs to.
+     */
     private void addBookToShelf(String shelfName) {
         Map<String, Object> updates = new HashMap<>();
         String userId = refAuth.getUid();
@@ -381,6 +431,11 @@ public class BookInfoFragment extends Fragment implements AdapterView.OnItemSele
         });
     }
 
+    /**
+     * removes the current book from the specified shelf in Firebase.
+     * deletes the book entry from the shelf node and removes its record from
+     * SavedBooksIndex.
+     */
     private void removeBookFromShelf(String shelfName) {
         Map<String, Object> updates = new HashMap<>();
         String userId = refAuth.getUid();
@@ -403,6 +458,12 @@ public class BookInfoFragment extends Fragment implements AdapterView.OnItemSele
         });
     }
 
+    /**
+     * builds a prompt using the book's details and sends it to the Gemini AI model
+     * through GeminiManager. disables the generate button and shows a loading message
+     * while waiting for the response. on success, displays the generated text.
+     * on failure, shows the error message and enables the button so the user can retry.
+     */
     public void generateGeminiReco()
     {
         String promptTemplate = getString(R.string.gemini_prompt);

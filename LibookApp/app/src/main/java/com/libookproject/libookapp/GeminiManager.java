@@ -12,12 +12,21 @@ import kotlin.coroutines.Continuation;
 import kotlin.coroutines.CoroutineContext;
 import kotlin.coroutines.EmptyCoroutineContext;
 
+/**
+ * singleton manager class responsible for all communication with the Gemini AI API.
+ * provides a simple way for sending text prompts and receiving AI generated responses.
+ * uses the singleton pattern to ensure only one instance and one model connection exists.
+ */
 public class GeminiManager
 {
     private static GeminiManager instance;
     private GenerativeModel gemini;
     private final String TAG = "GeminiManager";
 
+    /**
+     * private constructor - initializes the Gemini model with the app's API key.
+     * called only once in getInstance().
+     */
     private GeminiManager()
     {
         gemini = new GenerativeModel(
@@ -26,6 +35,10 @@ public class GeminiManager
         );
     }
 
+    /**
+     * returns the single instance of GeminiManager, creating it if it doesn't exist yet.
+     * @return the singleton instance of GeminiManager.
+     */
     public static GeminiManager getInstance()
     {
         if (instance == null)
@@ -35,6 +48,12 @@ public class GeminiManager
         return instance;
     }
 
+    /**
+     * sends a text prompt to the Gemini AI model and returns the response asynchronously
+     * on a GeminiCallback.
+     * @param prompt   the text prompt to send to the Gemini model.
+     * @param callback the callback to invoke with the result or error.
+     */
     public void sendTextPrompt(String prompt, GeminiCallback callback)
     {
         gemini.generateContent(prompt,

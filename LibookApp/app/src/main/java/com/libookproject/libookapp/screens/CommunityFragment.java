@@ -24,13 +24,17 @@ import com.libookproject.libookapp.serverApi.CommunityApiService;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * fragment responsible for displaying and searching community posts.
+ * supports keyword search, "show more", and navigation to add post screen.
+ */
 public class CommunityFragment extends Fragment implements AdapterView.OnItemClickListener
 {
-    private static final String KEY_POSTS_LIST     = "postsList";
-    private static final String KEY_START_INDEX    = "startIndex";
+    private static final String KEY_POSTS_LIST = "postsList";
+    private static final String KEY_START_INDEX = "startIndex";
     private static final String KEY_FOOTER_VISIBLE = "footerVisible";
-    private static final String KEY_LIST_POSITION  = "listPosition";
-    private static final String KEY_LIST_OFFSET    = "listOffset";
+    private static final String KEY_LIST_POSITION = "listPosition";
+    private static final String KEY_LIST_OFFSET = "listOffset";
 
     private View view;
     private EditText eTSearch;
@@ -74,6 +78,7 @@ public class CommunityFragment extends Fragment implements AdapterView.OnItemCli
         return view;
     }
 
+    //saves the current state of the fragment before it is destroyed.
     @Override
     public void onSaveInstanceState(Bundle outState)
     {
@@ -120,6 +125,7 @@ public class CommunityFragment extends Fragment implements AdapterView.OnItemCli
         btnAddPost.setOnClickListener(v -> addPostClicked());
     }
 
+    //restores the fragment's UI state after recreation.
     private void restoreState(Bundle savedInstanceState)
     {
         //restore posts list
@@ -144,6 +150,8 @@ public class CommunityFragment extends Fragment implements AdapterView.OnItemCli
         lVPosts.post(() -> lVPosts.setSelectionFromTop(pos, offset));
     }
 
+
+    // sends a search request to the server and handles the response.
     public void searchClicked(boolean isSearchClickedMode) {
         String q = eTSearch.getText().toString();
 
@@ -193,6 +201,11 @@ public class CommunityFragment extends Fragment implements AdapterView.OnItemCli
         });
     }
 
+    /**
+     * called when a post item in the ListView is clicked.
+     * creates a PostInfoFragment, passes the selected post's ID as an argument,
+     * and pushes it onto the back stack to display the post's detail page.
+     */
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id)
     {
@@ -209,6 +222,10 @@ public class CommunityFragment extends Fragment implements AdapterView.OnItemCli
                 .commit();
     }
 
+    /**
+     * navigates to AddPostFragment by pushing it onto the back stack,
+     * allowing the user to create a new community post.
+     */
     public void addPostClicked()
     {
         requireActivity().getSupportFragmentManager()

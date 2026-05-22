@@ -7,6 +7,11 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
+/**
+ * represents a light book object used for displaying books in lists and search results.
+ * contains only the essential fields needed for previewing a book (id, title, authors, image).
+ * implements Parcelable to allow saving the object state in onSaveInstanceState.
+ */
 public class LiteBook implements Parcelable
 {
     @SerializedName("id")
@@ -18,6 +23,13 @@ public class LiteBook implements Parcelable
     @SerializedName("image")
     private String image;
 
+    /**
+     * constructs a new LiteBook with all required fields.
+     * @param id      the identifier of the book.
+     * @param title   the title of the book.
+     * @param authors a list of the book's authors.
+     * @param image   a URL string of the book's cover image.
+     */
     public LiteBook(String id, String title, List<String> authors, String image) {
         this.id = id;
         this.title = title;
@@ -25,7 +37,7 @@ public class LiteBook implements Parcelable
         this.image = image;
     }
 
-
+    // getters and setters
     public String getId() {
         return id;
     }
@@ -58,7 +70,10 @@ public class LiteBook implements Parcelable
         this.image = image;
     }
 
-
+    /**
+     * reconstructs a LiteBook object from a Parcel (used when passing between components).
+     * @param in the Parcel containing the book's serialized data.
+     */
     protected LiteBook(Parcel in) {
         id = in.readString();
         title = in.readString();
@@ -66,6 +81,9 @@ public class LiteBook implements Parcelable
         image = in.readString();
     }
 
+    /**
+     * required by Parcelable. creates LiteBook instances from a Parcel or an array of them.
+     */
     public static final Creator<LiteBook> CREATOR = new Creator<LiteBook>() {
         @Override
         public LiteBook createFromParcel(Parcel in) {
@@ -78,6 +96,11 @@ public class LiteBook implements Parcelable
         }
     };
 
+    /**
+     * serializes the LiteBook's fields into a Parcel.
+     * @param dest  the Parcel to write data into.
+     * @param flags additional flags (not used here).
+     */
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(id);
@@ -86,6 +109,10 @@ public class LiteBook implements Parcelable
         dest.writeString(image);
     }
 
+    /**
+     * describes special objects contained in the Parcelable (none in here).
+     * @return always returns 0.
+     */
     @Override
     public int describeContents() {
         return 0;

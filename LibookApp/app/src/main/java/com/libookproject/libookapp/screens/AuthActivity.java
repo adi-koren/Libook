@@ -33,6 +33,12 @@ import com.google.firebase.auth.FirebaseUser;
 import com.libookproject.libookapp.FBRef;
 import com.libookproject.libookapp.R;
 
+/**
+ * activity responsible for user authentication - both Sign In and Sign Up.
+ * communicates with Firebase Authentication and Realtime Database to
+ * authenticate users and set up their account data on first registration.
+ * extends MasterActivity to inherit the light/dark mode toggle.
+ */
 public class AuthActivity extends MasterActivity
 {
     private TextView tVMode;
@@ -46,6 +52,10 @@ public class AuthActivity extends MasterActivity
     private boolean isLoading = false;
     private ProgressDialog pd;
 
+    /**
+     * initializes the activity layout, UI components, and restores saved state if available.
+     * @param savedInstanceState the bundle containing previously saved state, or null if none.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -68,6 +78,7 @@ public class AuthActivity extends MasterActivity
     @Override
     protected void onDestroy()
     {
+        //dismisses the loading dialog if it is currently showing
         if (pd != null && pd.isShowing())
         {
             pd.dismiss();
@@ -76,6 +87,7 @@ public class AuthActivity extends MasterActivity
         super.onDestroy();
     }
 
+    //initialize all UI elements references from the layout
     private void init()
     {
         tVMode = findViewById(R.id.tVMode);
@@ -87,6 +99,7 @@ public class AuthActivity extends MasterActivity
         tvSwitchMode = findViewById(R.id.tvSwitchMode);
     }
 
+    //restores the UI state after the activity is recreated
     private void loadSavedState(Bundle savedInstanceState)
     {
 //        eTEmail.setText(savedInstanceState.getString("email", ""));
@@ -98,6 +111,7 @@ public class AuthActivity extends MasterActivity
 
         applyModeUI();
 
+        //if request was in progress, it reshow the dialog and disable the btn
         if (isLoading)
         {
             btn.setEnabled(false);
@@ -110,6 +124,7 @@ public class AuthActivity extends MasterActivity
         }
     }
 
+    //switching the authentication mode (sign in <--> sign up)
     private void switchMode()
     {
         if (isLoading)
@@ -120,6 +135,7 @@ public class AuthActivity extends MasterActivity
         applyModeUI();
     }
 
+    //updates the UI to reflect the current mode
     private void applyModeUI()
     {
         if (isSignInMode)
@@ -138,6 +154,10 @@ public class AuthActivity extends MasterActivity
         updateSwitchText();
     }
 
+    /**
+     * updates the mode switch TextView with a partially clickable string.
+     * when user click on the clickable string it switch the auth mode
+     */
     private void updateSwitchText() {
 
         String fullText;
@@ -163,7 +183,7 @@ public class AuthActivity extends MasterActivity
             public void updateDrawState(@NonNull TextPaint ds) {
                 super.updateDrawState(ds);
                 ds.setColor(Color.BLUE);
-                ds.setUnderlineText(true); // set true if you want underline
+                ds.setUnderlineText(true);
             }
         };
 
@@ -178,11 +198,16 @@ public class AuthActivity extends MasterActivity
         tvSwitchMode.setHighlightColor(Color.TRANSPARENT);
     }
 
+    /**
+     * authenticate the user using Firebase Authentication based on the mode(sign in or sign out)
+     */
     public void auth(View view)
     {
         String email = eTEmail.getText().toString();
         String pass = eTPass.getText().toString();
         String username = eTUsername.getText().toString();
+
+        //check if all required fields are filled
         if (email.isEmpty() || pass.isEmpty() || (!isSignInMode && username.isEmpty()))
         {
             tVMsg.setText("Please fill all fields");
@@ -245,6 +270,7 @@ public class AuthActivity extends MasterActivity
         }
     }
 
+    //displays the error that occurred in the Firebase authentication
     private void authFailed(Exception exp)
     {
         if (exp instanceof FirebaseAuthInvalidUserException){
@@ -262,6 +288,11 @@ public class AuthActivity extends MasterActivity
         }
     }
 
+    /**
+     * completes the Sign Up after successful Firebase account creation.
+     * saves the username to FBRef, writes the user's data to the Realtime Database,
+     * creates a default "favorites" shelf, then navigates to MainActivity.
+     */
     private void finishSignUpSetup(String userId, String username)
     {
         FBRef.username = username;
@@ -273,6 +304,11 @@ public class AuthActivity extends MasterActivity
         openMain();
     }
 
+    /**
+     * completes the Sign In after successful Firebase authentication.
+     * fetches the user's username from the Realtime Database and saves it to FBRef,
+     * then navigates to MainActivity.
+     */
     private void finishSignInSetup(String userId)
     {
         refUsers.child(userId).child("username")
@@ -296,6 +332,7 @@ public class AuthActivity extends MasterActivity
                 });
     }
 
+    //starting MainActivity and closes this activity.
     private void openMain()
     {
         Intent intent = new Intent(this, MainActivity.class);
@@ -303,6 +340,10 @@ public class AuthActivity extends MasterActivity
         finish();
     }
 
+    /**
+     * saves the current state of the activity before it is destroyed,
+     * so it can be restored when the activity is recreated.
+     */
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState)
     {

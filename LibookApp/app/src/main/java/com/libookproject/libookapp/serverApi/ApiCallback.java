@@ -8,10 +8,14 @@ import com.libookproject.libookapp.RatingStats;
 
 import java.util.List;
 
+/**
+ * generic callback interface used by all API service classes to return
+ * results or errors asynchronously to the calling fragment or activity.
+ * all methods have default no-op implementations so that callers only
+ * need to override the methods relevant to their specific request.
+ */
 public interface ApiCallback<T>
 {
-    //default void onSuccess(T result) {}
-
     default void onBookInfoLoaded(Book book) {}
     default void onBookInfoError(String err) {}
 

@@ -14,12 +14,21 @@ import com.libookproject.libookapp.R;
 
 import java.util.ArrayList;
 
+/**
+ * custom adapter for displaying a list of LiteBook objects in a search results ListView.
+ * each list item shows the book's cover image, title, and first author.
+ */
 public class CustomAdapterSearch extends BaseAdapter
 {
     private Context context;
     private ArrayList<LiteBook> booksList;
     private LayoutInflater inflater;
 
+    /**
+     * constructs a new CustomAdapterSearch.
+     * @param context   the context of the activity using this adapter.
+     * @param booksList the list of LiteBook objects to display.
+     */
     public CustomAdapterSearch(Context context, ArrayList<LiteBook> booksList)
     {
         this.context = context;
@@ -27,24 +36,47 @@ public class CustomAdapterSearch extends BaseAdapter
         inflater = LayoutInflater.from(context);
     }
 
+    /**
+     * returns the total number of items in the list.
+     * @return the size of the books list.
+     */
     @Override
     public int getCount()
     {
         return booksList.size();
     }
 
+    /**
+     * returns the LiteBook object at the given position.
+     * @param position the index of the item.
+     * @return the LiteBook at the specified position.
+     */
     @Override
     public Object getItem(int position)
     {
         return booksList.get(position);
     }
 
+    /**
+     * returns the ID of the item at the given position.
+     * uses the position itself as the ID.
+     * @param position the index of the item.
+     * @return the position as the item ID.
+     */
     @Override
     public long getItemId(int position)
     {
         return position;
     }
 
+    /**
+     * creates or recycles a list item view and binds the book's data to it.
+     * the book's ID is stored as the view's tag.
+     * @param i      the position of the item in the list.
+     * @param view   a recycled view to reuse, or null if none is available.
+     * @param parent the parent ViewGroup the view will be attached to.
+     * @return the bound view for this list item.
+     */
     @Override
     public View getView(int i, View view, ViewGroup parent)
     {

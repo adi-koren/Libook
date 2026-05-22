@@ -19,6 +19,12 @@ import retrofit2.http.POST;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
+/**
+ * Retrofit interface defining all HTTP endpoints of the Libook server API.
+ * each method maps to a specific endpoint and HTTP method.
+ * used by the service classes (BooksApiService, CommunityApiService, ReviewsApiService)
+ * to make network requests through RetrofitInstance.
+ */
 public interface RetrofitAPI
 {
     //books endpoints

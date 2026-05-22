@@ -19,6 +19,12 @@ import com.libookproject.libookapp.ReviewsViewModel;
 import com.libookproject.libookapp.serverApi.ApiCallback;
 import com.libookproject.libookapp.serverApi.CommunityApiService;
 
+/**
+ * fragment displaying the full details of a community post.
+ * shows the post's headline, author username, creation date, and content.
+ * embeds a ReviewsFragment as a child fragment for displaying and submitting comments.
+ * fetches post data from the server on first load, or restores it from saved state on recreation.
+ */
 public class PostInfoFragment extends Fragment
 {
     private static final String KEY_POST_INFO = "postInfo";
@@ -67,6 +73,7 @@ public class PostInfoFragment extends Fragment
         return view;
     }
 
+    //saves the current post data before the fragment is destroyed.
     @Override
     public void onSaveInstanceState(Bundle outState)
     {
@@ -81,6 +88,10 @@ public class PostInfoFragment extends Fragment
         outState.putParcelable(KEY_POST_INFO, postInfo);
     }
 
+    /**
+     * called when the fragment is destroyed.
+     * clears the ReviewsViewModel to release its data before another post is opened later.
+     */
     @Override
     public void onDestroy()
     {
@@ -96,6 +107,10 @@ public class PostInfoFragment extends Fragment
         tVContent = view.findViewById(R.id.tVContent);
     }
 
+    /**
+     * sets up the ReviewsFragment as a child fragment inside the reviews container.
+     * only adds it if it doesn't already exist, to avoid duplicate fragments on recreation.
+     */
     private void setupReviewFragment() {
         //check if the reviews fragment already exists
         Fragment existing = getChildFragmentManager()
@@ -109,6 +124,7 @@ public class PostInfoFragment extends Fragment
         }
     }
 
+    //restores the fragment's UI state after recreation
     private void restoreState(Bundle savedInstanceState) {
         //restore post info
         postInfo = savedInstanceState.getParcelable(KEY_POST_INFO);
@@ -129,6 +145,11 @@ public class PostInfoFragment extends Fragment
         }
     }
 
+    /**
+     * fetches the full post data from the server using the post ID.
+     * on success, stores the post in postInfo, binds its data to the UI,
+     * and notifies the ReviewsViewModel and ReviewsFragment with the loaded review data.
+     */
     private void showPostInfo()
     {
         CommunityApiService.getPostInfo(postId, Uid, new ApiCallback<Post>()
@@ -160,6 +181,7 @@ public class PostInfoFragment extends Fragment
         });
     }
 
+    //binds the loaded post data to the UI views.
     private void bindData()
     {
         tVHeadline.setText(postInfo.getHeadline());

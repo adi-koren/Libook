@@ -20,6 +20,11 @@ import com.libookproject.libookapp.R;
 import com.libookproject.libookapp.serverApi.ApiCallback;
 import com.libookproject.libookapp.serverApi.CommunityApiService;
 
+/**
+ * fragment that allows the user to write and publish a new community post.
+ * contains input fields for the post's headline and content.
+ * on successful publish, notifies MainActivity that posts have changed.
+ */
 public class AddPostFragment extends Fragment
 {
     private View view;
@@ -52,6 +57,13 @@ public class AddPostFragment extends Fragment
         btnPublish.setOnClickListener(v -> { publishClicked(); });
     }
 
+    /**
+     * validates the headline and content fields, then sends a publish request to the server.
+     * shows field errors if either input is empty.
+     * on success, clears the input fields, shows a confirmation toast, and notifies
+     * MainActivity that the posts list has changed through notifyPostsHaveChanged().
+     * on failure, shows the error message as a toast.
+     */
     private void publishClicked()
     {
         String headline = eTHeadline.getText().toString();

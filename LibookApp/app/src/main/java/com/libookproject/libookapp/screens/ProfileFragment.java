@@ -28,6 +28,11 @@ import com.libookproject.libookapp.serverApi.CommunityApiService;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * fragment displaying the current user's profile page.
+ * shows the username, post count, and a list of all posts created by the user.
+ * supports opening a post's detail page on tap, and deleting a post on long press.
+ */
 public class ProfileFragment extends Fragment implements
         AdapterView.OnItemClickListener,
         AdapterView.OnItemLongClickListener {
@@ -66,6 +71,10 @@ public class ProfileFragment extends Fragment implements
         return view;
     }
 
+    /**
+     * called each time the fragment becomes visible and run.
+     * if needsRefresh is true, reloads the user's posts from the server.
+     */
     @Override
     public void onResume() {
         super.onResume();
@@ -76,6 +85,7 @@ public class ProfileFragment extends Fragment implements
         }
     }
 
+    //saves the current state of the fragment before it is destroyed.
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -112,6 +122,7 @@ public class ProfileFragment extends Fragment implements
         lVPosts.setAdapter(adp);
     }
 
+    //restores the fragment's UI state after recreation.
     private void restoreState(Bundle savedInstanceState)
     {
         if (savedInstanceState == null)
@@ -143,11 +154,18 @@ public class ProfileFragment extends Fragment implements
         lVPosts.post(() -> lVPosts.setSelectionFromTop(pos, offset));
     }
 
+    /**
+     * sets the needsRefresh flag. called externally by MainActivity when posts
+     * have been created or deleted elsewhere in the app, signaling that the
+     * posts list should be reloaded on the next onResume.
+     */
     public void setNeedsRefresh(boolean state)
     {
         needsRefresh = state;
     }
 
+
+    // fetches the current user's posts from the server and updates the UI.
     private void getPosts()
     {
         CommunityApiService.getUserPosts(Uid, new ApiCallback<List<LitePost>>() {
@@ -181,6 +199,10 @@ public class ProfileFragment extends Fragment implements
         });
     }
 
+    /**
+     * sends a delete request to the server for the given post ID.
+     * on success, reloads the posts list and shows a confirmation toast.
+     */
     private void deletePostClicked(String postId)
     {
         CommunityApiService.deletePost(postId, new ApiCallback()
@@ -204,10 +226,11 @@ public class ProfileFragment extends Fragment implements
         });
     }
 
-    // ---------------------------------------------------------------
-    // Navigation
-    // ---------------------------------------------------------------
-
+    /**
+     * called when a post item in the ListView is clicked.
+     * creates a PostInfoFragment, passes the selected post's ID as an argument,
+     * and pushes it onto the back stack to display the post's detail page.
+     */
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         PostInfoFragment postInfoFragment = new PostInfoFragment();
@@ -223,6 +246,10 @@ public class ProfileFragment extends Fragment implements
                 .commit();
     }
 
+    /**
+     * called when a post item in the ListView is long pressed.
+     * shows a confirmation dialog before deleting the post.
+     */
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view,
                                    int position, long id) {
@@ -236,6 +263,11 @@ public class ProfileFragment extends Fragment implements
         return true;
     }
 
+    /**
+     * signs the user out of Firebase Authentication, clears the data from FBRef,
+     * and navigates back to AuthActivity, clearing the entire back stack so the user
+     * cannot navigate back to the app without logging in again.
+     */
     private void logout()
     {
         refAuth.signOut();

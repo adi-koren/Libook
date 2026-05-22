@@ -5,6 +5,11 @@ import android.os.Parcelable;
 
 import com.google.gson.annotations.SerializedName;
 
+/**
+ * represents the rating statistics for a book or a post.
+ * holds the average rating, total review count, and the stars rate division.
+ * implements Parcelable to allow saving the object state in onSaveInstanceState,
+ */
 public class RatingStats implements Parcelable
 {
     @SerializedName("avg_rating")
@@ -22,6 +27,16 @@ public class RatingStats implements Parcelable
     @SerializedName("stars_1")
     private int stars_1;
 
+    /**
+     * constructs a new RatingStats with all rating data.
+     * @param avg_rating    the average rating.
+     * @param total_reviews the total number of reviews.
+     * @param stars_5       the number of 5 star reviews.
+     * @param stars_4       the number of 4 star reviews.
+     * @param stars_3       the number of 3 star reviews.
+     * @param stars_2       the number of 2 star reviews.
+     * @param stars_1       the number of 1 star reviews.
+     */
     public RatingStats(double avg_rating, int total_reviews, int stars_5, int stars_4, int stars_3, int stars_2, int stars_1) {
         this.avg_rating = avg_rating;
         this.total_reviews = total_reviews;
@@ -32,6 +47,7 @@ public class RatingStats implements Parcelable
         this.stars_1 = stars_1;
     }
 
+    // getters
     public double getAvg_rating() {
         return avg_rating;
     }
@@ -60,6 +76,11 @@ public class RatingStats implements Parcelable
         return stars_1;
     }
 
+    /**
+     * reconstructs a RatingStats object from a Parcel.
+     * reads each field in the same order they were written in writeToParcel.
+     * @param in the Parcel containing the serialized data.
+     */
     protected RatingStats(Parcel in) {
         avg_rating = in.readDouble();
         total_reviews = in.readInt();
@@ -70,6 +91,9 @@ public class RatingStats implements Parcelable
         stars_1 = in.readInt();
     }
 
+    /**
+     * required by Parcelable. creates RatingStats instances from a Parcel or an array of them.
+     */
     public static final Creator<RatingStats> CREATOR = new Creator<RatingStats>() {
         @Override
         public RatingStats createFromParcel(Parcel in) {
@@ -82,6 +106,12 @@ public class RatingStats implements Parcelable
         }
     };
 
+    /**
+     * serializes the RatingStats fields into a Parcel.
+     * fields must be written in the same order they are read in the Parcel constructor.
+     * @param dest  the Parcel to write data into.
+     * @param flags additional flags (not used here).
+     */
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeDouble(avg_rating);
@@ -93,6 +123,10 @@ public class RatingStats implements Parcelable
         dest.writeInt(stars_1);
     }
 
+    /**
+     * describes special objects contained in the Parcelable (none in here).
+     * @return always returns 0.
+     */
     @Override
     public int describeContents() {
         return 0;

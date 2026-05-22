@@ -6,6 +6,11 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
 
+/**
+ * ViewModel shared between BookInfoFragment/PostInfoFragment and their child ReviewsFragment.
+ * holds the review data for the currently displayed item so it survives configuration changes
+ * and can be accessed by the child fragment without directly passing the item object.
+ */
 public class ReviewsViewModel extends ViewModel
 {
     private String itemId;
@@ -14,6 +19,11 @@ public class ReviewsViewModel extends ViewModel
     private RatingStats rating_stats;
     private boolean isLoaded = false;
 
+    /**
+     * clears all stored data and resets the loaded state.
+     * called when the parent fragment is destroyed to prevent old data
+     * from appearing when a new item is opened.
+     */
     public void clear()
     {
         itemId = null;
@@ -23,6 +33,10 @@ public class ReviewsViewModel extends ViewModel
         isLoaded = false;
     }
 
+    /**
+     * stores all review related data for the current item and marks the ViewModel as loaded.
+     * called by the parent fragment after successfully fetching or restoring item data.
+     */
     public void setFields(String itemId, ArrayList<Review> reviews,
                           Review user_review, RatingStats rating_stats)
     {

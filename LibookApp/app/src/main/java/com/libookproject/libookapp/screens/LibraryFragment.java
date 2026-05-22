@@ -38,6 +38,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * fragment responsible for displaying and managing the user's personal book library.
+ * shows the books saved on the currently selected shelf.
+ * allows the user to create new shelves, delete existing ones, and navigate between them.
+ * book and shelf data are loaded in real time from Firebase Realtime Database.
+ */
 public class LibraryFragment extends Fragment
 {
     private static final String KEY_SHELF_NAME = "shelfName";
@@ -87,6 +93,7 @@ public class LibraryFragment extends Fragment
         btnDeleteShelf.setVisibility(
                 currentShelfName.equals("favorites") ? View.GONE : View.VISIBLE);
 
+        //load the current shelf's books, and the shelves menu
         loadBooks(currentShelfName);
         loadShelvesMenu();
 
@@ -121,6 +128,7 @@ public class LibraryFragment extends Fragment
         return view;
     }
 
+    //saves the current state of the fragment before it is destroyed.
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -173,6 +181,7 @@ public class LibraryFragment extends Fragment
         tvShelfName = view.findViewById(R.id.tvShelfName);
         tvBookCount = view.findViewById(R.id.tvBookCount);
 
+        //set RecyclerView with three column
         recyclerViewBooks = view.findViewById(R.id.recyclerViewBooks);
         GridLayoutManager layoutManager = new GridLayoutManager(getContext(), 3);
         layoutManager.setReverseLayout(false);
@@ -195,6 +204,12 @@ public class LibraryFragment extends Fragment
         recyclerViewBooks.setAdapter(adpBooks);
     }
 
+    /**
+     * attaches click and selection listeners to all interactive UI elements.
+     * the menu icon opens the shelf drawer. the NavigationView item listener switches
+     * to the selected shelf. the add shelf button in the drawer header shows the
+     * add shelf dialog. the delete button shows a confirmation dialog before deleting.
+     */
     private void attachListeners()
     {
         menuIcon.setOnClickListener(v ->
@@ -220,6 +235,11 @@ public class LibraryFragment extends Fragment
                         .show());
     }
 
+    /**
+     * switches the displayed shelf to the given shelf name.
+     * updates the shelf name label, reloads the books list, and shows or hides
+     * the delete button (hidden for the "favorites" shelf).
+     */
     private void showShelf(String shelfName)
     {
         currentShelfName = shelfName;
@@ -229,6 +249,11 @@ public class LibraryFragment extends Fragment
                 shelfName.equals("favorites") ? View.GONE : View.VISIBLE);
     }
 
+    /**
+     * attaches a realtime Firebase listener to the given shelf.
+     * removes any previous shelf listener before attaching the new one.
+     * on each data change, show the new books list.
+     */
     private void loadBooks(String shelfName)
     {
         //remove previous listener before switching shelves
@@ -263,6 +288,11 @@ public class LibraryFragment extends Fragment
         refCurrShelf.addValueEventListener(shelfListener);
     }
 
+    /**
+     * attaches a realtime Firebase listener to the user's Shelves.
+     * On each data change, shows the new NavigationView menu
+     * with the current list of shelf names.
+     */
     private void loadShelvesMenu()
     {
         shelvesListener = new ValueEventListener() {
@@ -283,6 +313,11 @@ public class LibraryFragment extends Fragment
         refCurrUserShelves.addValueEventListener(shelvesListener);
     }
 
+    /**
+     * shows a dialog allowing the user to enter a name for a new shelf.
+     * on confirmation, creates the shelf in Firebase under the user's Shelves node.
+     * shows an error if the name field is left empty.
+     */
     private void showAddShelfDialog()
     {
         Dialog dialog = new Dialog(requireContext());
@@ -315,6 +350,11 @@ public class LibraryFragment extends Fragment
         dialog.show();
     }
 
+    /**
+     * deletes the specified shelf and removes all its books from the user's SavedBooksIndex
+     * in a single atomic Firebase update. after deletion, switches the view back to
+     * the "favorites" shelf and shows a confirmation toast.
+     */
     private void deleteShelf(String shelfName)
     {
         refCurrShelf.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -349,6 +389,7 @@ public class LibraryFragment extends Fragment
         });
     }
 
+    //displays a generic error toast when a Firebase operation fails.
     private void showFirebaseError(DatabaseError error)
     {
         if (getContext() != null) {

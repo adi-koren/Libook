@@ -16,6 +16,13 @@ import androidx.fragment.app.Fragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.libookproject.libookapp.R;
 
+/**
+ * the main activity of the app, displayed after successful authentication.
+ * hosts four main fragments (Library, Search, Community, Profile) inside a FrameLayout,
+ * and manages navigation between them using a BottomNavigationView.
+ * also monitors internet connectivity and displays a message when the connection is lost.
+ * extends MasterActivity to inherit the light/dark mode toggle.
+ */
 public class MainActivity extends MasterActivity
 {
     private static final String KEY_ACTIVE_NAV_ID = "activeNavId";
@@ -35,6 +42,10 @@ public class MainActivity extends MasterActivity
 
     private boolean noInternetVisible = false;
 
+    /**
+     * initializes the activity, sets up fragments, navigation, and network tracking.
+     * restores saved state if the activity is being recreated.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -70,6 +81,10 @@ public class MainActivity extends MasterActivity
         }
     }
 
+    /**
+     * saves the currently activity state before it is destroyed,
+     * so they can be restored on recreation.
+     */
     @Override
     protected void onSaveInstanceState(Bundle outState)
     {
@@ -79,6 +94,10 @@ public class MainActivity extends MasterActivity
         outState.putBoolean(KEY_NO_INTERNET_SHOWN, noInternetVisible);
     }
 
+    /**
+     * registers the network callback when the activity becomes visible,
+     * so the app starts tracking connectivity changes.
+     */
     @Override
     protected void onStart()
     {
@@ -89,6 +108,7 @@ public class MainActivity extends MasterActivity
         connectivityManager.registerNetworkCallback(networkRequest, networkCallback);
     }
 
+    // unregisters the network callback when the activity is no longer visible.
     @Override
     protected void onStop()
     {
@@ -96,6 +116,14 @@ public class MainActivity extends MasterActivity
         connectivityManager.unregisterNetworkCallback(networkCallback);
     }
 
+    /**
+     * initializes all UI references and sets up the four main fragments.
+     * if creating, adds all fragments to the fragment manager and shows Search by default.
+     * if restoring from saved state, retrieves existing fragment instances and restores
+     * the previously active tab.
+     *
+     * @param savedInstanceState The bundle containing previously saved state, or null if none.
+     */
     private void init(Bundle savedInstanceState)
     {
         tVNoInternet = findViewById(R.id.tVNoInternet);
@@ -156,6 +184,10 @@ public class MainActivity extends MasterActivity
         }
     }
 
+    /**
+     * registers a back stack listener that hides the bottom navigation bar when an inner
+     * fragment is pushed onto the back stack, and shows it again when the user navigates back.
+     */
     private void addNavigationBarInnerFragmentListener()
     {
         getSupportFragmentManager()
@@ -171,6 +203,10 @@ public class MainActivity extends MasterActivity
                 });
     }
 
+    /**
+     * sets up the bottom navigation bar's item selection listener.
+     * when a tab is selected, call for switching to the chosen fragment.
+     */
     private void addNavigationBarPressedListener()
     {
         bottomNav.setOnItemSelectedListener(item -> {
@@ -199,6 +235,7 @@ public class MainActivity extends MasterActivity
         });
     }
 
+    // switches the visible fragment to the selected one
     private void switchFragment(Fragment selectedFragment)
     {
         if (selectedFragment == activeFragment)
@@ -215,6 +252,8 @@ public class MainActivity extends MasterActivity
         activeFragment = selectedFragment;
     }
 
+
+    // checks if the device currently has an active internet connection.
     private boolean isInternetAvailable()
     {
         ConnectivityManager cm =
@@ -229,6 +268,8 @@ public class MainActivity extends MasterActivity
                 capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
     }
 
+
+    // initializes the ConnectivityManager and sets up the NetworkCallback.
     private void setupNetworkTracking()
     {
         connectivityManager =
@@ -247,6 +288,7 @@ public class MainActivity extends MasterActivity
         };
     }
 
+    // displays the no internet message
     private void showNoInternetMessage()
     {
         noInternetVisible = true;
@@ -257,13 +299,10 @@ public class MainActivity extends MasterActivity
                 .start();
     }
 
+    // hides the no internet message
     private void hideNoInternetMessage()
     {
         noInternetVisible = false;
-        animateHideNoInternet();
-    }
-
-    private void animateHideNoInternet() {
         tVNoInternet.animate()
                 .translationY(-tVNoInternet.getHeight())
                 .setDuration(300)
@@ -271,7 +310,12 @@ public class MainActivity extends MasterActivity
                 .start();
     }
 
-    public void notifyPostsHaveChanged() {
+    /**
+     * notifies the ProfileFragment that posts have changed and it should refresh its data
+     * on its next appearance. called by other fragments after creating or deleting a post.
+     */
+    public void notifyPostsHaveChanged()
+    {
         profileFragment.setNeedsRefresh(true);
     }
 }
