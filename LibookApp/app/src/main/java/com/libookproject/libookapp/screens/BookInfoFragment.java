@@ -26,7 +26,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
-import com.libookproject.libookapp.Book;
+import com.libookproject.libookapp.dataObjects.Book;
 import com.libookproject.libookapp.ReviewsViewModel;
 import com.libookproject.libookapp.GeminiCallback;
 import com.libookproject.libookapp.GeminiManager;

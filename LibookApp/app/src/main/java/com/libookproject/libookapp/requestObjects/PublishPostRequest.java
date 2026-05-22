@@ -1,6 +1,4 @@
-package com.libookproject.libookapp;
-
-import com.google.gson.annotations.SerializedName;
+package com.libookproject.libookapp.requestObjects;
 
 public class PublishPostRequest
 {

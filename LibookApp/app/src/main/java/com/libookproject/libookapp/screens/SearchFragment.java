@@ -1,14 +1,13 @@
 package com.libookproject.libookapp.screens;
 
 import com.libookproject.libookapp.adapters.CustomAdapterSearch;
-import com.libookproject.libookapp.LiteBook;
+import com.libookproject.libookapp.dataObjects.LiteBook;
 import com.libookproject.libookapp.R;
-import com.libookproject.libookapp.SearchRequest;
+import com.libookproject.libookapp.requestObjects.SearchRequest;
 import com.libookproject.libookapp.serverApi.ApiCallback;
 import com.libookproject.libookapp.serverApi.BooksApiService;
 
 import android.os.Bundle;
-import android.os.Parcelable;
 
 import androidx.fragment.app.Fragment;
 
@@ -76,10 +75,10 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemClickL
     private int startIndex = 0;
     private SearchRequest prevRequest = null;
 
-    private final int NORMAL_SEARCH_MODE    = 0;
+    private final int NORMAL_SEARCH_MODE = 0;
     private final int VIEW_MORE_SEARCH_MODE = 1;
-    private final int ADVANCED_SEARCH_MODE  = 2;
-    private final int ISBN_SEARCH_MODE      = 3;
+    private final int ADVANCED_SEARCH_MODE = 2;
+    private final int ISBN_SEARCH_MODE = 3;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -183,7 +182,7 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemClickL
         startIndex = savedInstanceState.getInt(KEY_START_INDEX, 0);
         prevRequest = savedInstanceState.getParcelable(KEY_PREV_REQUEST);
 
-        //restore footer visibility ----
+        //restore footer visibility
         boolean footerVisible = savedInstanceState.getBoolean(KEY_FOOTER_VISIBLE, false);
         footerView.setVisibility(footerVisible ? View.VISIBLE : View.GONE);
 
@@ -232,7 +231,7 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemClickL
             }
         });
 
-        //isbn search lisener
+        //isbn search listener
         btnSearchISBN.setOnClickListener(v -> {
             toggleFilters();
             SearchRequest request = buildSearchRequest(ISBN_SEARCH_MODE);
@@ -252,9 +251,8 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemClickL
         });
     }
 
-    /**
-     * sends a search request to the server API and handles the response.
-     */
+
+    //sends a search request to the server API and handles the response.
     public void searchClicked(SearchRequest request, boolean isViewMoreMode)
     {
         if (!isViewMoreMode)

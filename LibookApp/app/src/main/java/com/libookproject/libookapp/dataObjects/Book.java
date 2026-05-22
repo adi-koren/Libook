@@ -1,4 +1,4 @@
-package com.libookproject.libookapp;
+package com.libookproject.libookapp.dataObjects;
 
 import android.os.Parcel;
 import android.os.Parcelable;

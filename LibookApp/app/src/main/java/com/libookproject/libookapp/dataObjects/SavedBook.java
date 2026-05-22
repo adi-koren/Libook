@@ -1,4 +1,4 @@
-package com.libookproject.libookapp;
+package com.libookproject.libookapp.dataObjects;
 
 /**
  * represents a saved book in the user's library.

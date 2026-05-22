@@ -1,13 +1,13 @@
 package com.libookproject.libookapp.serverApi;
 
-import com.libookproject.libookapp.Book;
-import com.libookproject.libookapp.LiteBook;
-import com.libookproject.libookapp.LitePost;
-import com.libookproject.libookapp.Post;
-import com.libookproject.libookapp.PostReviewRequest;
-import com.libookproject.libookapp.PublishPostRequest;
-import com.libookproject.libookapp.RatingStats;
-import com.libookproject.libookapp.SearchRequest;
+import com.libookproject.libookapp.dataObjects.Book;
+import com.libookproject.libookapp.dataObjects.LiteBook;
+import com.libookproject.libookapp.dataObjects.LitePost;
+import com.libookproject.libookapp.dataObjects.Post;
+import com.libookproject.libookapp.requestObjects.PostReviewRequest;
+import com.libookproject.libookapp.requestObjects.PublishPostRequest;
+import com.libookproject.libookapp.dataObjects.RatingStats;
+import com.libookproject.libookapp.requestObjects.SearchRequest;
 
 import java.util.List;
 

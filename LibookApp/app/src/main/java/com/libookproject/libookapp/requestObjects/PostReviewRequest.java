@@ -1,4 +1,4 @@
-package com.libookproject.libookapp;
+package com.libookproject.libookapp.requestObjects;
 
 /**
  * represents the request body sent to the server when a user publish a book/post review.

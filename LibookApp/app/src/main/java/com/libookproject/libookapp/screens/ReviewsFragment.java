@@ -25,10 +25,10 @@ import android.widget.Toast;
 
 import com.libookproject.libookapp.ReviewsViewModel;
 import com.libookproject.libookapp.adapters.CustomAdapterReviews;
-import com.libookproject.libookapp.PostReviewRequest;
+import com.libookproject.libookapp.requestObjects.PostReviewRequest;
 import com.libookproject.libookapp.R;
-import com.libookproject.libookapp.RatingStats;
-import com.libookproject.libookapp.Review;
+import com.libookproject.libookapp.dataObjects.RatingStats;
+import com.libookproject.libookapp.dataObjects.Review;
 import com.libookproject.libookapp.serverApi.ApiCallback;
 import com.libookproject.libookapp.serverApi.ReviewsApiService;
 

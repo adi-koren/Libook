@@ -1,9 +1,7 @@
-package com.libookproject.libookapp;
+package com.libookproject.libookapp.requestObjects;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-
-import androidx.annotation.NonNull;
 
 import java.util.HashMap;
 import java.util.Map;

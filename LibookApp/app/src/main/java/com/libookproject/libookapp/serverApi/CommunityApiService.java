@@ -1,8 +1,8 @@
 package com.libookproject.libookapp.serverApi;
 
-import com.libookproject.libookapp.LitePost;
-import com.libookproject.libookapp.Post;
-import com.libookproject.libookapp.PublishPostRequest;
+import com.libookproject.libookapp.dataObjects.LitePost;
+import com.libookproject.libookapp.dataObjects.Post;
+import com.libookproject.libookapp.requestObjects.PublishPostRequest;
 
 import org.json.JSONObject;
 

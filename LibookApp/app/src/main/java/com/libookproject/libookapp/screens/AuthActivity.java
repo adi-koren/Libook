@@ -18,9 +18,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseNetworkException;
@@ -60,7 +58,6 @@ public class AuthActivity extends MasterActivity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-//        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_auth);
 
         init();
@@ -102,9 +99,6 @@ public class AuthActivity extends MasterActivity
     //restores the UI state after the activity is recreated
     private void loadSavedState(Bundle savedInstanceState)
     {
-//        eTEmail.setText(savedInstanceState.getString("email", ""));
-//        eTPass.setText(savedInstanceState.getString("pass", ""));
-//        eTUsername.setText(savedInstanceState.getString("username", ""));
         isSignInMode = savedInstanceState.getBoolean("mode", true);
         tVMsg.setText(savedInstanceState.getString("msg", ""));
         isLoading = savedInstanceState.getBoolean("loading", false);
@@ -349,9 +343,6 @@ public class AuthActivity extends MasterActivity
     {
         super.onSaveInstanceState(outState);
 
-//        outState.putString("email", eTEmail.getText().toString());
-//        outState.putString("pass", eTPass.getText().toString());
-//        outState.putString("username", eTUsername.getText().toString());
         outState.putBoolean("mode", isSignInMode);
         outState.putString("msg", tVMsg.getText().toString());
         outState.putBoolean("loading", isLoading);

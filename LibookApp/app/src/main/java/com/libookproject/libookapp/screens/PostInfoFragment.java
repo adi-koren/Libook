@@ -13,7 +13,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.libookproject.libookapp.Post;
+import com.libookproject.libookapp.dataObjects.Post;
 import com.libookproject.libookapp.R;
 import com.libookproject.libookapp.ReviewsViewModel;
 import com.libookproject.libookapp.serverApi.ApiCallback;

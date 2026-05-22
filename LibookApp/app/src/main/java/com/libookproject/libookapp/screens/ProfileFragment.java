@@ -19,7 +19,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.libookproject.libookapp.LitePost;
+import com.libookproject.libookapp.dataObjects.LitePost;
 import com.libookproject.libookapp.R;
 import com.libookproject.libookapp.adapters.CustomAdapterCommunity;
 import com.libookproject.libookapp.serverApi.ApiCallback;
@@ -178,11 +178,6 @@ public class ProfileFragment extends Fragment implements
                     adp.notifyDataSetChanged();
 
                     tVPostsCount.setText("Posts: " + posts.size());
-
-                    if (posts.isEmpty())
-                    {
-                        // put here the "post your first..." message if needed
-                    }
 
                     setNeedsRefresh(false);
                 }

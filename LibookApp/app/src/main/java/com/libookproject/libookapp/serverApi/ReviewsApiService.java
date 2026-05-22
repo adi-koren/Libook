@@ -1,7 +1,7 @@
 package com.libookproject.libookapp.serverApi;
 
-import com.libookproject.libookapp.PostReviewRequest;
-import com.libookproject.libookapp.RatingStats;
+import com.libookproject.libookapp.requestObjects.PostReviewRequest;
+import com.libookproject.libookapp.dataObjects.RatingStats;
 
 import org.json.JSONObject;
 

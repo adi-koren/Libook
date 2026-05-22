@@ -1,10 +1,10 @@
 package com.libookproject.libookapp.serverApi;
 
-import com.libookproject.libookapp.Book;
-import com.libookproject.libookapp.LiteBook;
-import com.libookproject.libookapp.LitePost;
-import com.libookproject.libookapp.Post;
-import com.libookproject.libookapp.RatingStats;
+import com.libookproject.libookapp.dataObjects.Book;
+import com.libookproject.libookapp.dataObjects.LiteBook;
+import com.libookproject.libookapp.dataObjects.LitePost;
+import com.libookproject.libookapp.dataObjects.Post;
+import com.libookproject.libookapp.dataObjects.RatingStats;
 
 import java.util.List;
 

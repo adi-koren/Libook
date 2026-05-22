@@ -1,10 +1,8 @@
 package com.libookproject.libookapp.serverApi;
 
-import com.libookproject.libookapp.Book;
-import com.libookproject.libookapp.LiteBook;
-import com.libookproject.libookapp.PostReviewRequest;
-import com.libookproject.libookapp.RatingStats;
-import com.libookproject.libookapp.SearchRequest;
+import com.libookproject.libookapp.dataObjects.Book;
+import com.libookproject.libookapp.dataObjects.LiteBook;
+import com.libookproject.libookapp.requestObjects.SearchRequest;
 
 import java.util.List;
 import org.json.JSONObject;

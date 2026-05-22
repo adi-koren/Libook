@@ -31,7 +31,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.libookproject.libookapp.adapters.CustomAdapterLibrary;
 import com.libookproject.libookapp.R;
-import com.libookproject.libookapp.SavedBook;
+import com.libookproject.libookapp.dataObjects.SavedBook;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -290,7 +290,7 @@ public class LibraryFragment extends Fragment
 
     /**
      * attaches a realtime Firebase listener to the user's Shelves.
-     * On each data change, shows the new NavigationView menu
+     * on each data change, shows the new NavigationView menu
      * with the current list of shelf names.
      */
     private void loadShelvesMenu()

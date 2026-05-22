@@ -9,10 +9,7 @@
     android:paddingTop="10dp"
     tools:context=".screens.CommunityFragment">
 
-    <!-- ====================== -->
     <!--       SEARCH BAR       -->
-    <!-- ====================== -->
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -47,10 +44,7 @@
     </LinearLayout>
 
 
-    <!-- ====================== -->
     <!--         HEADER         -->
-    <!-- ====================== -->
-
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -88,10 +82,7 @@
     </FrameLayout>
 
 
-    <!-- ====================== -->
     <!--        POSTS LIST      -->
-    <!-- ====================== -->
-
     <ListView
         android:id="@+id/lVPosts"
         android:layout_width="match_parent"

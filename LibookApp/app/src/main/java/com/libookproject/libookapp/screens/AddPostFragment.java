@@ -1,7 +1,6 @@
 package com.libookproject.libookapp.screens;
 
 import static com.libookproject.libookapp.FBRef.Uid;
-import static com.libookproject.libookapp.FBRef.refAuth;
 import static com.libookproject.libookapp.FBRef.username;
 
 import android.os.Bundle;
@@ -15,7 +14,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.libookproject.libookapp.PublishPostRequest;
+import com.libookproject.libookapp.requestObjects.PublishPostRequest;
 import com.libookproject.libookapp.R;
 import com.libookproject.libookapp.serverApi.ApiCallback;
 import com.libookproject.libookapp.serverApi.CommunityApiService;

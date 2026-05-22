@@ -2,7 +2,8 @@ package com.libookproject.libookapp;
 
 import androidx.lifecycle.ViewModel;
 
-import com.google.gson.annotations.SerializedName;
+import com.libookproject.libookapp.dataObjects.RatingStats;
+import com.libookproject.libookapp.dataObjects.Review;
 
 import java.util.ArrayList;
 

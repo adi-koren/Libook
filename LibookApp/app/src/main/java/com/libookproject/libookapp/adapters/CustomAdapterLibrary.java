@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.libookproject.libookapp.R;
-import com.libookproject.libookapp.SavedBook;
+import com.libookproject.libookapp.dataObjects.SavedBook;
 
 import java.util.ArrayList;
 

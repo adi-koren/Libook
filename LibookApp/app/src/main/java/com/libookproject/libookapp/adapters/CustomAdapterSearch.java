@@ -9,7 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.libookproject.libookapp.LiteBook;
+import com.libookproject.libookapp.dataObjects.LiteBook;
 import com.libookproject.libookapp.R;
 
 import java.util.ArrayList;

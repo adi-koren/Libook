@@ -11,7 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.libookproject.libookapp.R;
-import com.libookproject.libookapp.Review;
+import com.libookproject.libookapp.dataObjects.Review;
 
 import java.util.ArrayList;
 
