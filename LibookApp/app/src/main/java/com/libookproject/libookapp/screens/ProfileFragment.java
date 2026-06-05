@@ -72,14 +72,14 @@ public class ProfileFragment extends Fragment implements
     }
 
     /**
-     * called each time the fragment becomes visible and run.
+     * called each time the fragment's visibility is changed.
      * if needsRefresh is true, reloads the user's posts from the server.
      */
     @Override
-    public void onResume() {
-        super.onResume();
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
 
-        if (needsRefresh)
+        if (!hidden && needsRefresh)
         {
             getPosts();
         }
@@ -209,6 +209,7 @@ public class ProfileFragment extends Fragment implements
                     getPosts();
                     Toast.makeText(getContext(),
                             "Your post has been deleted", Toast.LENGTH_SHORT).show();
+                    ((MainActivity)requireActivity()).notifyPostsHaveChanged();
                 }
             }
 

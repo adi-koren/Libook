@@ -316,5 +316,6 @@ public class MainActivity extends MasterActivity
     public void notifyPostsHaveChanged()
     {
         profileFragment.setNeedsRefresh(true);
+        communityFragment.setNeedsRefresh(true);
     }
 }

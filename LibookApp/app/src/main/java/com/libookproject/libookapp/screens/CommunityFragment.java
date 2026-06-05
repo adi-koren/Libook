@@ -30,6 +30,7 @@ import java.util.List;
  */
 public class CommunityFragment extends Fragment implements AdapterView.OnItemClickListener
 {
+    private static final String KEY_NEEDS_REFRESH = "needsRefresh";
     private static final String KEY_POSTS_LIST = "postsList";
     private static final String KEY_START_INDEX = "startIndex";
     private static final String KEY_FOOTER_VISIBLE = "footerVisible";
@@ -49,6 +50,8 @@ public class CommunityFragment extends Fragment implements AdapterView.OnItemCli
     private int startIndex = 0;
 
     private final boolean SEARCH_CLICKED_MODE = true;
+    //starts true so that the first onResume will loads posts.
+    private boolean needsRefresh = true;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -64,18 +67,29 @@ public class CommunityFragment extends Fragment implements AdapterView.OnItemCli
         init();
         attachListeners();
 
-        if (savedInstanceState == null)
-        {
-            //load newest posts from the server
-            searchClicked(SEARCH_CLICKED_MODE);
-        }
-        else
+        if (savedInstanceState != null)
         {
             //restore the data
             restoreState(savedInstanceState);
         }
 
         return view;
+    }
+
+    /**
+     * called each time the fragment's visibility is changed.
+     * if needsRefresh is true, reloads the community's posts from the server.
+     */
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+
+        if (!hidden && needsRefresh)
+        {
+            //load newest posts from the server
+            searchClicked(SEARCH_CLICKED_MODE);
+            setNeedsRefresh(false);
+        }
     }
 
     //saves the current state of the fragment before it is destroyed.
@@ -90,6 +104,7 @@ public class CommunityFragment extends Fragment implements AdapterView.OnItemCli
             return;
         }
 
+        outState.putBoolean(KEY_NEEDS_REFRESH, needsRefresh);
         outState.putParcelableArrayList(KEY_POSTS_LIST, postsList);
         outState.putInt(KEY_START_INDEX, startIndex);
         outState.putBoolean(KEY_FOOTER_VISIBLE,
@@ -97,6 +112,16 @@ public class CommunityFragment extends Fragment implements AdapterView.OnItemCli
         outState.putInt(KEY_LIST_POSITION, lVPosts.getFirstVisiblePosition());
         View firstChild = lVPosts.getChildAt(0);
         outState.putInt(KEY_LIST_OFFSET, firstChild == null ? 0 : firstChild.getTop());
+    }
+
+    /**
+     * sets the needsRefresh flag. called externally by MainActivity when posts
+     * have been created or deleted elsewhere in the app, signaling that the
+     * posts list should be reloaded on the next onResume.
+     */
+    public void setNeedsRefresh(boolean state)
+    {
+        needsRefresh = state;
     }
 
     private void init()
@@ -143,6 +168,9 @@ public class CommunityFragment extends Fragment implements AdapterView.OnItemCli
         // Restore footer visibility
         boolean footerVisible = savedInstanceState.getBoolean(KEY_FOOTER_VISIBLE, false);
         footerView.setVisibility(footerVisible ? View.VISIBLE : View.GONE);
+
+        //restore needsRefresh
+        needsRefresh = savedInstanceState.getBoolean(KEY_NEEDS_REFRESH, true);
 
         //restore scroll position
         int pos = savedInstanceState.getInt(KEY_LIST_POSITION, 0);
