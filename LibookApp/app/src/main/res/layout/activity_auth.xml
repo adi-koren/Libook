@@ -18,7 +18,7 @@
         android:textStyle="bold"
         android:textColor="@color/color_text_primary"
         android:textSize="48sp"
-        android:layout_marginTop="20dp" />
+        android:layout_marginTop="50dp" />
 
     <!-- MODE TEXT -->
     <TextView
